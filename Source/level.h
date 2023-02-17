@@ -5,6 +5,8 @@
 #include "grid.h"
 #include "agent.h"
 #include "star.h"
+#include "starChaser.h"
+#include "tradingPost.h"
 
 
 #include <list>
@@ -26,19 +28,25 @@ public: // Functions
 	Agent *GetAgent(int id);
 
 		  
-	Agent *SpawnAgent();
+	Agent *SpawnAgent(std::string agentType);
 
 	// @AddMoreHere
 
 	int getId(Agent *agent);
+
+
+	void unload_textures();
 
 public: // containers and variables
 
 	int last_id = 0;
 
 	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.
-	//std::list<Grass> grass_agents;
 
+	//std::list<Star> star_agents;
+	//std::list<StarChaser> starChaser_agents;
+	//std::list<TradingPost> tradingPost_agents;
+	
 	// @AddMoreHere
 
 	std::unordered_map<int, Agent*> id_to_agent;
@@ -48,10 +56,20 @@ public: // containers and variables
 
 	GridManager gridManager;
 
+	Texture star_texture;
+	Texture tradePost_texture;
+	Texture starChaser_texture;
+
 private: // functions
+
+	std::vector<Vector2> pathfind(Vector2 start, Vector2 end);
 
 	void remove_dead_and_add_pending_agents();
 	// Remember, if you add more lists (see @AddMoreHere), edit this function so that dead agents are removed correctly without leaking memory
+
+	void load_textures();
+
+	Vector2 PositionOnRandomTile();
 
 private: // Containers and variables
 
@@ -62,6 +80,7 @@ private: // Containers and variables
 	bool drawingCircle = false;
 
 	Star star;
+	TradingPost tradePost;
 
 	float delay = 2.0f;
 

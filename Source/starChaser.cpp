@@ -1,5 +1,10 @@
 #include "starChaser.h"
 
+StarChaser::StarChaser()
+{
+	energy = 50.0f;
+}
+
 void StarChaser::sense(Level* level)
 {
 

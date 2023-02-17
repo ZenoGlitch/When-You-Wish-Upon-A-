@@ -6,6 +6,8 @@ class StarChaser : public Agent
 {
 public:
 
+	StarChaser();
+
 	void sense(Level *level) override;
 	void decide()			 override;
 	void act(Level* level)	 override;

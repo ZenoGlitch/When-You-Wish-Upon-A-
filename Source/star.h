@@ -2,11 +2,14 @@
 
 #include "agent.h"
 
+//class Level;
+
 class Star : public Agent
 {
 public:
 
-	Star();
+	Star() = default;
+	Star(Level* level);
 
 	void sense(Level* level) override;
 	void decide()			 override;
@@ -16,11 +19,18 @@ public:
 
 	float getEnergy()		 override;
 
+	void setTexture(Texture &p_texture);
+
 private:
 
-	Texture2D texture;
+	Texture2D *texture;
 
+	enum Decision
+	{
+		shouldSpawn, idle
+	} decision = idle;
 
-	float energy;
+	float energy = 50.0f;
+	bool beingCarried = false;
 
 };

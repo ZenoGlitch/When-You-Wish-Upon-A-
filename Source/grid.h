@@ -1,44 +1,27 @@
 #pragma once
 
 #include "raylib.h"
+#include <vector>
 
 class Level;
 
-enum TileType { Dirt = 0, Grass = 1, Rock = 2 };
+enum TileType { Dirt, Grass, Rock, Count };
+
 
 template <typename T> int sgn(T val) {
 	return (T(0) < val) - (val < T(0));
 }
 
-class Tile
+class TileData
 {
 public:
-	Tile(TileType p_tileType = Dirt);
-	~Tile() = default;
+	static const int size = 60;
 
-	void Update();
-
-	void Sense();
-	void Decide();
-	void Act();
-
-	void SetPosition(float p_pos_x, float p_pos_y);
-
-	void SetTileType(TileType p_tileType);
-	TileType GetTileType();
-	TileType CycleTileTypes(TileType p_tileType);
-
-	bool blocked;
-
-	Rectangle GetTileBox();
-
-	Vector2 position;
 	Color color;
 
-	TileType tileType;
+	//Rectangle GetTileBox();
 
 private:
-	enum GrassDecision { Grow, Trampled } decision;
 
 };
 
@@ -49,14 +32,17 @@ public:
 	Grid();
 	~Grid();
 
-	static const int rows = 20, columns = 20;
+	static const int columns = 25, rows = 20;
 
-	Tile map[rows][columns];
+	TileType map[columns][rows];
 
-	//void SetTileType(TileType p_tileType);
+	std::vector<TileData> tileData;
+
 	TileType GetRandomTileType();
+	TileType SetTileType(TileType p_tileType);
+	void SetColor(TileType p_tileType);
+	TileType CycleTileTypes(TileType p_tileType);
 
-	//Color g_color;
 private:
 
 
@@ -74,7 +60,7 @@ public:
 	void Update();
 	void Draw();
 
-	Tile GetTile(int, int);
+	TileType &GetTile(int, int);
 
 	Grid grid;
 

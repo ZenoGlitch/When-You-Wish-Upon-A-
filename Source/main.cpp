@@ -9,21 +9,23 @@
 
 int main(void)
 {    
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
+    //const int screenWidth = 1920;
+    //const int screenHeight = 1080;
+    const int screenWidth = 1500;
+    const int screenHeight = 1200;
 
-    SetConfigFlags(ConfigFlags::FLAG_WINDOW_RESIZABLE | ConfigFlags::FLAG_VSYNC_HINT | ConfigFlags::FLAG_MSAA_4X_HINT);
+    SetConfigFlags(/*ConfigFlags::FLAG_WINDOW_RESIZABLE |*/ ConfigFlags::FLAG_VSYNC_HINT | ConfigFlags::FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "When you wish upon A*");
 
     // SetTargetFPS(60); // Uncomment this if you want to use fixed framerate (I suggest using vsync)
-     SetExitKey(0);    // Uncomment this to disable ESC as exit key
+     //SetExitKey(0);    // Uncomment this to disable ESC as exit key
 
     srand((unsigned int)time(0));
 
     Level level;
 
+    level.Initialize();
     level.Reset();
-    //level.Initialize();
 
     while (!WindowShouldClose())
     {
@@ -40,6 +42,7 @@ int main(void)
         EndDrawing();
     }
 
+    level.unload_textures();
     CloseWindow();
 
     return 0;

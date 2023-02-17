@@ -6,6 +6,15 @@
 void Level::Initialize()
 {
     //gridManager.Initialize();
+    load_textures();
+    star.setTexture(star_texture);
+    tradePost.setTexture(tradePost_texture);
+    
+    Vector2 starSpawnPos = PositionOnRandomTile();
+    star.setPosition(starSpawnPos);
+
+    Vector2 tradePostSpawnPos = PositionOnRandomTile();
+    tradePost.setPosition(tradePostSpawnPos);
 }
 
 void Level::Update()
@@ -21,36 +30,22 @@ void Level::Update()
     {
         drawingCircle = true;
 
-        int mousePosX = (int)floor(GetMousePosition().x / 96);
-        int mousePosY = (int)floor(GetMousePosition().y / 54);
+        int mousePosX = (int)floor(GetMousePosition().x / TileData::size);
+        int mousePosY = (int)floor(GetMousePosition().y / TileData::size);
 
-        Tile tile = gridManager.GetTile(mousePosX, mousePosY);
+        TileType &tile = gridManager.GetTile(mousePosX, mousePosY);
 
-        int tilePosX = (int)(tile.position.x);
-        int tilePosY = (int)(tile.position.y);
+        TileData tileData = gridManager.grid.tileData.at(tile);
 
-        //Grid activeGrid = gridManager.grid;
-        TileType localTileType = gridManager.grid.map[mousePosX][mousePosY].GetTileType();
+        tile = gridManager.grid.CycleTileTypes(tile);
+        //tileData.color = gridManager.grid.SetColor(tile);
 
-        TileType cycledTileType = gridManager.grid.map[mousePosX][mousePosY].CycleTileTypes(localTileType);
-        //activeGrid.map[mousePosX][mousePosY].SetTileType(activeGrid.map[mousePosX][mousePosY].CycleTileTypes(tileType));
-        gridManager.grid.map[mousePosX][mousePosY].SetTileType(cycledTileType);
         delay = 2.0f;
 
     }
     else drawingCircle = false;
 
     gridManager.Update();
-    //for (auto& sheep : sheep_agents)
-    //{
-    //    // TODO: This piece of code needs to be changed to make sure that sense, decide, act, happen at different frequencies.
-    //    if (frameCounter >= 3)
-    //    {
-    //        sheep.sense(this);
-    //    }
-    //    sheep.decide();
-    //    sheep.act(this);
-    //}
 }
 
 void Level::Draw()
@@ -68,6 +63,7 @@ void Level::Draw()
     }
 
     star.draw();
+    tradePost.draw();
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
 
@@ -76,7 +72,8 @@ void Level::Draw()
 void Level::Reset()
 {
     // Clear all lists and vectors
-    //grass_agents.clear();
+
+    //star_agents.clear();
 
     all_agents.clear();
     pending_agents.clear();
@@ -85,6 +82,11 @@ void Level::Reset()
     //for (int i = 0; i < 10; i++)
     //{
     //    SpawnAgent(Sheep());
+    //}
+    
+    //for (int i = 0; i < 1; i++)
+    //{
+    //    SpawnAgent("star");
     //}
 
 }
@@ -99,9 +101,46 @@ Agent* Level::GetAgent(int id)
     return nullptr;
 }
 
-Agent* Level::SpawnAgent()
+Agent* Level::SpawnAgent(std::string agentType)
 {
     Agent* result = nullptr;
+
+    //if (agentType == "star")
+    //{
+    //    Star agent(star_texture);
+    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), 10 };
+    //    agent.setPosition(randPos);
+    //    star_agents.push_back(agent);
+    //    result = &star_agents.back();
+    //}
+    //else if (agentType == "starChaser")
+    //{
+    //    StarChaser agent;
+    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
+    //    Tile spawnTile = gridManager.GetTile((int)(randPos.x / 96), (int)(randPos.y / 54));
+    //    Vector2 spawnPos = spawnTile.position;
+    //    spawnPos.x = spawnTile.position.x + spawnTile.width / 2;
+    //    spawnPos.y = spawnTile.position.y + spawnTile.height / 2;
+    //    agent.setPosition(spawnPos);
+    //    starChaser_agents.push_back(agent);
+    //    result = &starChaser_agents.back();
+    //}
+    //else if (agentType == "tradingPost")
+    //{
+    //    TradingPost agent;
+    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
+    //    Tile spawnTile = gridManager.GetTile((int)(randPos.x / 96), (int)(randPos.y / 54));
+    //    Vector2 spawnPos = spawnTile.position;
+    //    spawnPos.x = spawnTile.position.x + spawnTile.width / 2;
+    //    spawnPos.y = spawnTile.position.y + spawnTile.height / 2;
+    //    agent.setPosition(spawnPos);
+    //    tradingPost_agents.push_back(agent);
+    //    result = &tradingPost_agents.back();
+    //}
+    //else
+    //{
+    //    return nullptr;
+    //}
 
     //Vector2 randPosition = { (float)(rand() % GetScreenWidth()), (float)(rand() % GetScreenHeight()) };
     //agent.setPosition(randPosition);
@@ -110,14 +149,8 @@ Agent* Level::SpawnAgent()
 
     //pending_agents.push_back(result); // Enqueue it so that it can be added to the level at the beginning of the next frame
 
-
-
     return result;
 }
-
-
-
-
 
 int Level::getId(Agent* agent)
 {
@@ -131,7 +164,15 @@ int Level::getId(Agent* agent)
     return -1;
 }
 
+std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
+{
+    std::vector<Vector2> result;
 
+    result.push_back(start);
+    result.push_back(end);
+
+    return result;
+}
 
 void Level::remove_dead_and_add_pending_agents()
 {
@@ -152,8 +193,7 @@ void Level::remove_dead_and_add_pending_agents()
     // This must happen _after_ we remove agents from the vector 'all_agents'.
     // @AddMoreHere
 
-    //sheep_agents.remove_if([](Sheep& a) { return a.isDead(); });
-
+    //star_agents.remove_if([](Star& a) { return a.isDead(); });
 
     
     // Add all pending agents
@@ -167,4 +207,33 @@ void Level::remove_dead_and_add_pending_agents()
     }
 
     pending_agents.clear(); // Important that we clear this, otherwise we'll add the same agents every frame.
+}
+
+void Level::load_textures()
+{
+    star_texture = LoadTexture("assets/star2.png");
+
+    //starChaser_texture = LoadTexture("assets/starChaser.png");
+    tradePost_texture = LoadTexture("assets/tradePost.png");
+}
+
+void Level::unload_textures()
+{
+    UnloadTexture(star_texture);
+    UnloadTexture(tradePost_texture);
+    //UnloadTexture(starChaser_texture);
+
+}
+
+Vector2 Level::PositionOnRandomTile()
+{
+    Vector2 result;
+
+    int randTileX = rand() % gridManager.grid.columns;
+    int randTileY = rand() % gridManager.grid.rows;
+    int offset = 5;
+
+    result = { (float)(randTileX * TileData::size + offset), (float)(randTileY * TileData::size + offset) };
+
+    return result;
 }
