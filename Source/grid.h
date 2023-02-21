@@ -19,6 +19,10 @@ public:
 
 	Color color;
 
+	int costF(); // G + H
+	int costG; // Distance from starting node
+	int costH; // Distance from end node
+
 	//Rectangle GetTileBox();
 
 private:
@@ -61,7 +65,8 @@ public:
 	void Draw();
 
 	TileType &GetTile(int, int);
-
+	std::vector<TileType> GetNeighbours(int x, int y);
+	int GetDistance(Vector2 from, Vector2 to);
 	Grid grid;
 
 private:

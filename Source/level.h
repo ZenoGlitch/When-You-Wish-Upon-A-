@@ -34,12 +34,32 @@ public: // Functions
 
 	int getId(Agent *agent);
 
-
 	void unload_textures();
 
-public: // containers and variables
+	std::vector<Vector2> pathfind(Vector2 start, Vector2 end);
+
+private: // Functions
+
+	void remove_dead_and_add_pending_agents();
+	// Remember, if you add more lists (see @AddMoreHere), edit this function so that dead agents are removed correctly without leaking memory
+
+	void load_textures();
+	void set_texures();
+
+	Vector2 PositionOnRandomTile();
+	void set_spawn_positions();
+
+	void SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize);
+	void SetNeighbourPositions(std::vector<TileType> neighbours);
+
+
+public: // Containers and variables
 
 	int last_id = 0;
+
+	std::vector<Vector2> open_tiles;
+	std::vector<Vector2> closed_tiles;
+	std::vector<Vector2> neighbour_positions;
 
 	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.
 
@@ -60,17 +80,6 @@ public: // containers and variables
 	Texture tradePost_texture;
 	Texture starChaser_texture;
 
-private: // functions
-
-	std::vector<Vector2> pathfind(Vector2 start, Vector2 end);
-
-	void remove_dead_and_add_pending_agents();
-	// Remember, if you add more lists (see @AddMoreHere), edit this function so that dead agents are removed correctly without leaking memory
-
-	void load_textures();
-
-	Vector2 PositionOnRandomTile();
-
 private: // Containers and variables
 
 	int frameCounter = 0;
@@ -81,6 +90,7 @@ private: // Containers and variables
 
 	Star star;
 	TradingPost tradePost;
+	StarChaser starChaser;
 
 	float delay = 2.0f;
 

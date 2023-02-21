@@ -2,6 +2,11 @@
 
 #include "math.h"
 
+int TileData::costF()
+{
+	return costG + costH;
+}
+
 // GRID STUFF
 #pragma region gridFunctions
 
@@ -57,8 +62,6 @@ TileType Grid::SetTileType(TileType p_tileType)
 TileType Grid::CycleTileTypes(TileType p_tileType)
 {
 	TileType temp = p_tileType;
-	TileData tD = tileData.at(temp);
-
 
 	temp = (TileType)(temp + 1);
 
@@ -200,6 +203,210 @@ void GridManager::Draw()
 TileType &GridManager::GetTile(int x, int y)
 {
 	return grid.map[x][y];
+}
+
+std::vector<TileType> GridManager::GetNeighbours(int x, int y)
+{
+	TileType topLeftNeighbour;
+	TileType topNeighbour;
+	TileType topRightNeighbour;	  
+	TileType leftNeighbour;
+	TileType rightNeighbour;   
+	TileType bottomLeftNeighbour;
+	TileType bottomNeighbour;   
+	TileType bottomRightNeighbour;
+
+	std::vector<TileType> neighbours;
+
+	if (x > 0 && x < grid.columns - 1)
+	{
+		if (y > 0 && y < grid.rows - 1)
+		{
+			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
+			TileType topNeighbour = GetTile(x, y - 1);
+			TileType topRightNeighbour = GetTile(x + 1, y - 1);
+			TileType leftNeighbour = GetTile(x - 1, y);
+			TileType rightNeighbour = GetTile(x + 1, y);
+			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
+			TileType bottomNeighbour = GetTile(x, y + 1);
+			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+
+			neighbours.push_back(topLeftNeighbour);
+			neighbours.push_back(topNeighbour);
+			neighbours.push_back(topRightNeighbour);
+			neighbours.push_back(leftNeighbour);
+			neighbours.push_back(rightNeighbour);
+			neighbours.push_back(bottomLeftNeighbour);
+			neighbours.push_back(bottomNeighbour);
+			neighbours.push_back(bottomRightNeighbour);
+		}
+		else if (y == 0)
+		{
+			TileType leftNeighbour = GetTile(x - 1, y);
+			TileType rightNeighbour = GetTile(x + 1, y);
+			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
+			TileType bottomNeighbour = GetTile(x, y + 1);
+			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+
+			neighbours.push_back(leftNeighbour);
+			neighbours.push_back(rightNeighbour);
+			neighbours.push_back(bottomLeftNeighbour);
+			neighbours.push_back(bottomNeighbour);
+			neighbours.push_back(bottomRightNeighbour);
+		}
+		else if (y == grid.rows - 1)
+		{
+			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
+			TileType topNeighbour = GetTile(x, y - 1);
+			TileType topRightNeighbour = GetTile(x + 1, y - 1);
+			TileType leftNeighbour = GetTile(x - 1, y);
+			TileType rightNeighbour = GetTile(x + 1, y);
+
+			neighbours.push_back(topLeftNeighbour);
+			neighbours.push_back(topNeighbour);
+			neighbours.push_back(topRightNeighbour);
+			neighbours.push_back(leftNeighbour);
+			neighbours.push_back(rightNeighbour);
+		}
+	}
+	else if (x == 0)
+	{
+		if (y > 0 && y < grid.rows - 1)
+		{
+
+			TileType topNeighbour = GetTile(x, y - 1);
+			TileType topRightNeighbour = GetTile(x + 1, y - 1);
+
+			TileType rightNeighbour = GetTile(x + 1, y);
+
+			TileType bottomNeighbour = GetTile(x, y + 1);
+			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+
+			neighbours.push_back(topNeighbour);
+			neighbours.push_back(topRightNeighbour);
+			neighbours.push_back(rightNeighbour);
+			neighbours.push_back(bottomLeftNeighbour);
+			neighbours.push_back(bottomNeighbour);
+			neighbours.push_back(bottomRightNeighbour);
+		}
+		else if (y == 0)
+		{
+
+			TileType rightNeighbour = GetTile(x + 1, y);
+
+			TileType bottomNeighbour = GetTile(x, y + 1);
+			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+
+
+			neighbours.push_back(rightNeighbour);
+
+			neighbours.push_back(bottomNeighbour);
+			neighbours.push_back(bottomRightNeighbour);
+		}
+		else if (y == grid.rows - 1)
+		{
+
+			TileType topNeighbour = GetTile(x, y - 1);
+			TileType topRightNeighbour = GetTile(x + 1, y - 1);
+
+			TileType rightNeighbour = GetTile(x + 1, y);
+
+
+			neighbours.push_back(topNeighbour);
+			neighbours.push_back(topRightNeighbour);
+
+			neighbours.push_back(rightNeighbour);
+		}
+	}
+	else if (x == grid.columns - 1)
+	{
+		if (y > 0 && y < grid.rows - 1)
+		{
+			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
+			TileType topNeighbour = GetTile(x, y - 1);
+
+			TileType leftNeighbour = GetTile(x - 1, y);
+
+			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
+			TileType bottomNeighbour = GetTile(x, y + 1);
+
+			neighbours.push_back(topLeftNeighbour);
+			neighbours.push_back(topNeighbour);
+
+			neighbours.push_back(leftNeighbour);
+
+			neighbours.push_back(bottomLeftNeighbour);
+			neighbours.push_back(bottomNeighbour);
+		}
+		else if (y == 0)
+		{
+			TileType leftNeighbour = GetTile(x - 1, y);
+
+			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
+			TileType bottomNeighbour = GetTile(x, y + 1);
+
+			neighbours.push_back(leftNeighbour);
+
+			neighbours.push_back(bottomLeftNeighbour);
+			neighbours.push_back(bottomNeighbour);
+
+
+		}
+		else if (y == grid.rows - 1)
+		{
+			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
+			TileType topNeighbour = GetTile(x, y - 1);
+
+			TileType leftNeighbour = GetTile(x - 1, y);
+
+			neighbours.push_back(topLeftNeighbour);
+			neighbours.push_back(topNeighbour);
+
+			neighbours.push_back(leftNeighbour);
+		}
+	}
+
+
+	//std::vector<TileType> neighbours;
+
+	//TileType topLeftNeighbour      = GetTile(x - 1, y - 1);
+	//TileType topNeighbour          = GetTile(x    , y - 1);
+	//TileType topRightNeighbour     = GetTile(x + 1, y - 1);
+	//TileType leftNeighbour         = GetTile(x - 1, y    );
+	//TileType rightNeighbour        = GetTile(x + 1, y    );
+	//TileType bottomLeftNeighbour   = GetTile(x - 1, y + 1);
+	//TileType bottomNeighbour       = GetTile(x    , y + 1);
+	//TileType bottomRightNeighbour  = GetTile(x + 1, y + 1);
+
+	//neighbours.push_back(topLeftNeighbour);
+	//neighbours.push_back(topNeighbour);
+	//neighbours.push_back(topRightNeighbour);
+	//neighbours.push_back(leftNeighbour);
+	//neighbours.push_back(rightNeighbour);
+	//neighbours.push_back(bottomLeftNeighbour);
+	//neighbours.push_back(bottomNeighbour);
+	//neighbours.push_back(bottomRightNeighbour);
+
+	return neighbours;
+}
+
+int GridManager::GetDistance(Vector2 from, Vector2 to)
+{
+	int result = 0;
+
+	int distanceX = (int)abs(from.x - to.x);
+	int distanceY = (int)abs(from.y - to.y);
+
+	if (distanceX > distanceY)
+	{
+		result = 14 * distanceY + 10 * (distanceX - distanceY);
+	}
+	else
+	{
+		result = 14 * distanceX + 10 * (distanceY - distanceX);
+	}
+
+	return result;
 }
 
 #pragma endregion
