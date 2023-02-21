@@ -207,185 +207,26 @@ TileType &GridManager::GetTile(int x, int y)
 
 std::vector<TileType> GridManager::GetNeighbours(int x, int y)
 {
-	TileType topLeftNeighbour;
-	TileType topNeighbour;
-	TileType topRightNeighbour;	  
-	TileType leftNeighbour;
-	TileType rightNeighbour;   
-	TileType bottomLeftNeighbour;
-	TileType bottomNeighbour;   
-	TileType bottomRightNeighbour;
-
 	std::vector<TileType> neighbours;
 
-	if (x > 0 && x < grid.columns - 1)
+	for (int i = -1; i <= 1; i++)
 	{
-		if (y > 0 && y < grid.rows - 1)
+		for (int j = -1; j <= 1; j++)
 		{
-			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
-			TileType topNeighbour = GetTile(x, y - 1);
-			TileType topRightNeighbour = GetTile(x + 1, y - 1);
-			TileType leftNeighbour = GetTile(x - 1, y);
-			TileType rightNeighbour = GetTile(x + 1, y);
-			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
-			TileType bottomNeighbour = GetTile(x, y + 1);
-			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+			if (i == 0 && j == 0)
+			{
+				continue;
+			}
 
-			neighbours.push_back(topLeftNeighbour);
-			neighbours.push_back(topNeighbour);
-			neighbours.push_back(topRightNeighbour);
-			neighbours.push_back(leftNeighbour);
-			neighbours.push_back(rightNeighbour);
-			neighbours.push_back(bottomLeftNeighbour);
-			neighbours.push_back(bottomNeighbour);
-			neighbours.push_back(bottomRightNeighbour);
-		}
-		else if (y == 0)
-		{
-			TileType leftNeighbour = GetTile(x - 1, y);
-			TileType rightNeighbour = GetTile(x + 1, y);
-			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
-			TileType bottomNeighbour = GetTile(x, y + 1);
-			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
+			int checkX = x + i;
+			int checkY = y + j;
 
-			neighbours.push_back(leftNeighbour);
-			neighbours.push_back(rightNeighbour);
-			neighbours.push_back(bottomLeftNeighbour);
-			neighbours.push_back(bottomNeighbour);
-			neighbours.push_back(bottomRightNeighbour);
-		}
-		else if (y == grid.rows - 1)
-		{
-			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
-			TileType topNeighbour = GetTile(x, y - 1);
-			TileType topRightNeighbour = GetTile(x + 1, y - 1);
-			TileType leftNeighbour = GetTile(x - 1, y);
-			TileType rightNeighbour = GetTile(x + 1, y);
-
-			neighbours.push_back(topLeftNeighbour);
-			neighbours.push_back(topNeighbour);
-			neighbours.push_back(topRightNeighbour);
-			neighbours.push_back(leftNeighbour);
-			neighbours.push_back(rightNeighbour);
+			if (checkX >= 0 && checkX < grid.columns && checkY >= 0 && checkY < grid.rows)
+			{
+				neighbours.push_back(grid.map[checkX][checkY]);
+			}
 		}
 	}
-	else if (x == 0)
-	{
-		if (y > 0 && y < grid.rows - 1)
-		{
-
-			TileType topNeighbour = GetTile(x, y - 1);
-			TileType topRightNeighbour = GetTile(x + 1, y - 1);
-
-			TileType rightNeighbour = GetTile(x + 1, y);
-
-			TileType bottomNeighbour = GetTile(x, y + 1);
-			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
-
-			neighbours.push_back(topNeighbour);
-			neighbours.push_back(topRightNeighbour);
-			neighbours.push_back(rightNeighbour);
-			neighbours.push_back(bottomLeftNeighbour);
-			neighbours.push_back(bottomNeighbour);
-			neighbours.push_back(bottomRightNeighbour);
-		}
-		else if (y == 0)
-		{
-
-			TileType rightNeighbour = GetTile(x + 1, y);
-
-			TileType bottomNeighbour = GetTile(x, y + 1);
-			TileType bottomRightNeighbour = GetTile(x + 1, y + 1);
-
-
-			neighbours.push_back(rightNeighbour);
-
-			neighbours.push_back(bottomNeighbour);
-			neighbours.push_back(bottomRightNeighbour);
-		}
-		else if (y == grid.rows - 1)
-		{
-
-			TileType topNeighbour = GetTile(x, y - 1);
-			TileType topRightNeighbour = GetTile(x + 1, y - 1);
-
-			TileType rightNeighbour = GetTile(x + 1, y);
-
-
-			neighbours.push_back(topNeighbour);
-			neighbours.push_back(topRightNeighbour);
-
-			neighbours.push_back(rightNeighbour);
-		}
-	}
-	else if (x == grid.columns - 1)
-	{
-		if (y > 0 && y < grid.rows - 1)
-		{
-			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
-			TileType topNeighbour = GetTile(x, y - 1);
-
-			TileType leftNeighbour = GetTile(x - 1, y);
-
-			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
-			TileType bottomNeighbour = GetTile(x, y + 1);
-
-			neighbours.push_back(topLeftNeighbour);
-			neighbours.push_back(topNeighbour);
-
-			neighbours.push_back(leftNeighbour);
-
-			neighbours.push_back(bottomLeftNeighbour);
-			neighbours.push_back(bottomNeighbour);
-		}
-		else if (y == 0)
-		{
-			TileType leftNeighbour = GetTile(x - 1, y);
-
-			TileType bottomLeftNeighbour = GetTile(x - 1, y + 1);
-			TileType bottomNeighbour = GetTile(x, y + 1);
-
-			neighbours.push_back(leftNeighbour);
-
-			neighbours.push_back(bottomLeftNeighbour);
-			neighbours.push_back(bottomNeighbour);
-
-
-		}
-		else if (y == grid.rows - 1)
-		{
-			TileType topLeftNeighbour = GetTile(x - 1, y - 1);
-			TileType topNeighbour = GetTile(x, y - 1);
-
-			TileType leftNeighbour = GetTile(x - 1, y);
-
-			neighbours.push_back(topLeftNeighbour);
-			neighbours.push_back(topNeighbour);
-
-			neighbours.push_back(leftNeighbour);
-		}
-	}
-
-
-	//std::vector<TileType> neighbours;
-
-	//TileType topLeftNeighbour      = GetTile(x - 1, y - 1);
-	//TileType topNeighbour          = GetTile(x    , y - 1);
-	//TileType topRightNeighbour     = GetTile(x + 1, y - 1);
-	//TileType leftNeighbour         = GetTile(x - 1, y    );
-	//TileType rightNeighbour        = GetTile(x + 1, y    );
-	//TileType bottomLeftNeighbour   = GetTile(x - 1, y + 1);
-	//TileType bottomNeighbour       = GetTile(x    , y + 1);
-	//TileType bottomRightNeighbour  = GetTile(x + 1, y + 1);
-
-	//neighbours.push_back(topLeftNeighbour);
-	//neighbours.push_back(topNeighbour);
-	//neighbours.push_back(topRightNeighbour);
-	//neighbours.push_back(leftNeighbour);
-	//neighbours.push_back(rightNeighbour);
-	//neighbours.push_back(bottomLeftNeighbour);
-	//neighbours.push_back(bottomNeighbour);
-	//neighbours.push_back(bottomRightNeighbour);
 
 	return neighbours;
 }

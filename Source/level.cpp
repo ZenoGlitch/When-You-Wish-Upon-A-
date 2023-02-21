@@ -66,23 +66,27 @@ void Level::Draw()
     //Vector2 starOrigin = { star.getPosition().x - 5 + TileData::size / 2, star.getPosition().y - 5 + TileData::size / 2 };
     pathfind(starChaser.getPosition(), star.getPosition());
 
-    if (open_tiles.size() > 0)
-    {
-        for (int i = 0; i < open_tiles.size(); i++)
-        { 
-            Color transparentBlue = { 0, 121, 241, 5 };
-            
-            DrawRectangle((int)open_tiles.at(i).x, (int)open_tiles.at(i).y, TileData::size, TileData::size, transparentBlue);
-        }    
-    }
 
-    if (closed_tiles.size() > 0)
+    if (IsKeyDown(KEY_B))
     {
-        for (int i = 0; i < closed_tiles.size(); i++)
+        if (open_tiles.size() > 0)
         {
-            Color transparentRed = { 230, 41, 55, 5 };
+            for (int i = 0; i < open_tiles.size(); i++)
+            { 
+                Color transparentBlue = { 0, 121, 241, 5 };
+            
+                DrawRectangle((int)open_tiles.at(i).x, (int)open_tiles.at(i).y, TileData::size, TileData::size, transparentBlue);
+            }    
+        }
 
-            DrawRectangle((int)closed_tiles.at(i).x, (int)closed_tiles.at(i).y, TileData::size, TileData::size, transparentRed);
+        if (closed_tiles.size() > 0)
+        {
+            for (int i = 0; i < closed_tiles.size(); i++)
+            {
+                Color transparentRed = { 230, 41, 55, 5 };
+
+                DrawRectangle((int)closed_tiles.at(i).x, (int)closed_tiles.at(i).y, TileData::size, TileData::size, transparentRed);
+            }
         }
     }
 
@@ -213,92 +217,55 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
 
     std::vector<TileType> neighbours = gridManager.GetNeighbours((int)startTileIndex.x, (int)startTileIndex.y);
 
-    SetNeighboursGandHCosts(neighbours, startTilePos, end, tileHalfSize);
+    if (neighbours.size() > 0)
+    {
+        SetNeighboursGandHCosts(neighbours, startTilePos, end, tileHalfSize);
+    }
 
     // find lowest F cost
     
- /*   for (auto& nPos : neighbour_positions)
-    {*/
+    //for (auto& n : neighbour_positions)
+    //{
+    //    if (gridManager.GetTile(n.x, n.y) == Rock)
+    //    {
+    //        
+    //    }
+    //}
+
+
         for (int i = 1; i < neighbours.size(); i++)
         {
             int currentF = gridManager.grid.tileData.at(neighbours.at(i)).costF();
             int previousF = gridManager.grid.tileData.at(neighbours.at(i-1)).costF();
 
-            
+            int currentH = gridManager.grid.tileData.at(neighbours.at(i)).costH;
+            int previousH = gridManager.grid.tileData.at(neighbours.at(i)).costH;
 
-            //if (currentF < previousF && gridManager.GetTile((int)neighbour_positions.at(i).x, (int)neighbour_positions.at(i).y) != Rock)
-            //{
-            //    open_tiles.push_back(neighbour_positions.at(i));
-            //    closed_tiles.push_back(open_tiles.at(0));
-            //    open_tiles.erase(open_tiles.begin());
-            //}
-            //else
-            //{
+            TileType currentTile = gridManager.GetTile((int)neighbour_positions.at(i).x / TileData::size, 
+                                                       (int)neighbour_positions.at(i).y / TileData::size);
 
-            //}
+
+            if (currentF < previousF && currentTile != Rock) //  SOMETHING IS GOING WRONG HERE, PLEASE HELP!!!
+            {
+                if (open_tiles.size() > 0)
+                {
+                    closed_tiles.push_back(neighbour_positions.at(i));
+                    open_tiles.erase(open_tiles.begin());
+                }
+                //open_tiles.push_back(neighbour_positions.at(i));
+            }
+            else if (currentF == previousF && currentH < previousH  && currentTile != Rock) //  SOMETHING IS GOING WRONG HERE, PLEASE HELP!!!
+            {
+                if (open_tiles.size() > 0)
+                {
+                    closed_tiles.push_back(neighbour_positions.at(i));
+                    open_tiles.erase(open_tiles.begin());
+                    /*open_tiles.push_back(neighbour_positions.at(i));*/
+                }
+            } 
         }
-  /*  }*/
 
-    //for (auto &n : neighbour_positions)
-    //{
-    //    for (auto &o : open_tiles)
-    //    {
-    //        if (gridManager.grid.tileData.at(gridManager.GetTile((int)n.x, (int)n.y)).costF() < gridManager.grid.tileData.at(gridManager.GetTile((int)o.x, (int)o.y)).costF())
-    //        {
-    //            closed_tiles.push_back(o);
-    //            open_tiles.erase(open_tiles.begin());
-    //            open_tiles.push_back(n);
-    //            if (o.x == endTilePos.x && o.y == endTilePos.y)
-    //            {
-    //                return closed_tiles;
-    //            }
-    //            pathfind(o, end);
-    //            DrawLine((int)o.x, (int)o.y, (int)endTileOriginPos.x, (int)endTileOriginPos.y, RED);
-    //        }
-    //    }
-    //}
-    
-    //while (open_tiles.size() > 0)
-    //{
-    //    TileData currentTile = gridManager.grid.tileData.at(gridManager.GetTile((int)startTilePos.x, (int)startTilePos.y));
-    //    Vector2 currentTilePos = startTilePos;
-    //    for (int i = 1; i < open_tiles.size(); i++)
-    //    {
-    //        if (gridManager.grid.tileData.at(neighbours[i]).costF()     < currentTile.costF())
-    //        {
-    //            currentTile = gridManager.grid.tileData.at(neighbours[i]);
-    //            currentTilePos = neighbour_positions[i];
-    //        }
-    //        if (gridManager.grid.tileData.at(neighbours[i]).costF() == currentTile.costF()
-    //            && gridManager.grid.tileData.at(neighbours[i]).costH < currentTile.costH)
-    //        {
-    //            currentTile = gridManager.grid.tileData.at(neighbours[i]);
-    //            currentTilePos = neighbour_positions[i];
-    //        }
-    //    }
-    //    open_tiles.remove(currentTilePos);
-    //    closed_tiles.push_back(currentTilePos);
-    //}
 
-    //for (int i = 0; i < neighbour_positions.size(); i++)
-    //{
-    //    auto n = neighbour_positions.at(i);
-    //    int currentCostF = gridManager.grid.tileData.at(gridManager.GetTile(n.x, n.y)).costF();
-    //    int previousCostF = gridManager.grid.tileData.at(gridManager.GetTile(startTilePos.x, startTilePos.y)).costF();
-    //    if (i > 0 && currentCostF < previousCostF)
-    //    {
-    //        previousCostF = currentCostF;
-    //        open_tiles.remove(neighbour_positions[i]);
-    //        closed_tiles.push_back(neighbour_positions[i]);
-    //    }
-    //    else if (i > 0 && currentCostF == previousCostF)
-    //    {
-    //        previousCostF = currentCostF;
-    //        open_tiles.remove(neighbour_positions[i]);
-    //        closed_tiles.push_back(neighbour_positions[i]);
-    //    }
-    //}
-    
     DrawLine((int)startTileOriginPos.x, (int)startTileOriginPos.y, (int)endTileOriginPos.x, (int)endTileOriginPos.y, RED);
 
     return result;
@@ -327,13 +294,13 @@ void Level::SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 st
     if (neighbour_positions.size() == 0)
     {
         neighbour_positions.push_back(Vector2(neighbour1OriginPos.x - tileHalfSize, neighbour1OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour2OriginPos.x - tileHalfSize, neighbour2OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour3OriginPos.x - tileHalfSize, neighbour3OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour4OriginPos.x - tileHalfSize, neighbour4OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour5OriginPos.x - tileHalfSize, neighbour5OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour6OriginPos.x - tileHalfSize, neighbour6OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour7OriginPos.x - tileHalfSize, neighbour7OriginPos.y - tileHalfSize));
-        neighbour_positions.push_back(Vector2(neighbour8OriginPos.x - tileHalfSize, neighbour8OriginPos.y - tileHalfSize));
+        neighbour_positions.push_back(Vector2(neighbour2OriginPos.x               , neighbour2OriginPos.y - tileHalfSize));
+        neighbour_positions.push_back(Vector2(neighbour3OriginPos.x + tileHalfSize, neighbour3OriginPos.y - tileHalfSize));
+        neighbour_positions.push_back(Vector2(neighbour4OriginPos.x - tileHalfSize, neighbour4OriginPos.y               ));
+        neighbour_positions.push_back(Vector2(neighbour5OriginPos.x + tileHalfSize, neighbour5OriginPos.y               ));
+        neighbour_positions.push_back(Vector2(neighbour6OriginPos.x - tileHalfSize, neighbour6OriginPos.y + tileHalfSize));
+        neighbour_positions.push_back(Vector2(neighbour7OriginPos.x               , neighbour7OriginPos.y + tileHalfSize));
+        neighbour_positions.push_back(Vector2(neighbour8OriginPos.x + tileHalfSize, neighbour8OriginPos.y + tileHalfSize));
     }
 
     gridManager.grid.tileData.at(neighbours.at(0)).costH = gridManager.GetDistance(neighbour1OriginPos, end);
