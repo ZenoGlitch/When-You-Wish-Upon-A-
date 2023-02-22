@@ -1,8 +1,9 @@
 #include "grid.h"
 
 #include "math.h"
+#include "level.h"
 
-int TileData::costF()
+int TileData::costF() 
 {
 	return costG + costH;
 }
@@ -205,7 +206,7 @@ TileType &GridManager::GetTile(int x, int y)
 	return grid.map[x][y];
 }
 
-std::vector<TileType> GridManager::GetNeighbours(int x, int y)
+std::vector<TileType> GridManager::GetNeighbours(Level *level, int x, int y)
 {
 	std::vector<TileType> neighbours;
 
@@ -224,6 +225,7 @@ std::vector<TileType> GridManager::GetNeighbours(int x, int y)
 			if (checkX >= 0 && checkX < grid.columns && checkY >= 0 && checkY < grid.rows)
 			{
 				neighbours.push_back(grid.map[checkX][checkY]);
+				level->neighbour_positions.push_back(Vector2((float)checkX, (float)checkY));
 			}
 		}
 	}
