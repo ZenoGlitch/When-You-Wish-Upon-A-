@@ -49,16 +49,27 @@ private: // Functions
 	Vector2 PositionOnRandomTile();
 	void set_spawn_positions();
 
-	void SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize);
-	void SetNeighbourPositions(std::vector<TileType> neighbours);
+	/*void SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize);*/
+	/*void SetNeighbourPositions(std::vector<TileType> neighbours);*/
 
 
 public: // Containers and variables
 
 	int last_id = 0;
 
-	std::vector<Vector2> open_tiles;
-	std::vector<Vector2> closed_tiles;
+	struct pathfindingNode 
+	{
+		int costF(); // costG + costH
+		int costG; // Distance from starting node
+		int costH; // Distance from end node
+
+		Vector2 position;
+
+		Vector2 parentPosition;
+	};
+
+	std::vector<pathfindingNode> open_tiles;
+	std::vector<pathfindingNode> closed_tiles;
 	std::vector<Vector2> neighbour_positions;
 
 	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.

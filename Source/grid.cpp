@@ -3,10 +3,10 @@
 #include "math.h"
 #include "level.h"
 
-int TileData::costF() 
-{
-	return costG + costH;
-}
+//int TileData::costF() 
+//{
+//	return costG + costH;
+//}
 
 // GRID STUFF
 #pragma region gridFunctions
@@ -206,9 +206,9 @@ TileType &GridManager::GetTile(int x, int y)
 	return grid.map[x][y];
 }
 
-std::vector<TileType> GridManager::GetNeighbours(Level *level, int x, int y)
+std::vector<Vector2> GridManager::GetNeighbours(/*Level *level,*/ int x, int y)
 {
-	std::vector<TileType> neighbours;
+	std::vector<Vector2> neighbours;
 
 	for (int i = -1; i <= 1; i++)
 	{
@@ -224,8 +224,8 @@ std::vector<TileType> GridManager::GetNeighbours(Level *level, int x, int y)
 
 			if (checkX >= 0 && checkX < grid.columns && checkY >= 0 && checkY < grid.rows)
 			{
-				neighbours.push_back(grid.map[checkX][checkY]);
-				level->neighbour_positions.push_back(Vector2((float)checkX, (float)checkY));
+				neighbours.push_back(Vector2(checkX * TileData::size, checkY * TileData::size));
+				/*level->neighbour_positions.push_back(Vector2((float)checkX, (float)checkY));*/
 			}
 		}
 	}
