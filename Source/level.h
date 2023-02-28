@@ -37,6 +37,7 @@ public: // Functions
 	void unload_textures();
 
 	std::vector<Vector2> pathfind(Vector2 start, Vector2 end);
+	std::vector<Vector2> retracePath(Vector2 startTile, Vector2 endTile, int index);
 
 private: // Functions
 

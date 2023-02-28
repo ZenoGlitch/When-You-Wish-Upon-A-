@@ -2,9 +2,20 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
-bool operator == (Vector2 a, Vector2 b) {
+bool operator == (Vector2 a, Vector2 b) 
+{
     return a.x == b.x && a.y == b.y;
+}
+
+bool operator != (Vector2 a, Vector2 b)
+{
+    if ((a.x != b.x && a.y != b.y) || (a.x == b.x && a.y != b.y) || (a.x != b.x && a.y == b.y))
+    {
+        return true;
+    }
+    else return false;
 }
 
 void Level::Initialize()
@@ -43,7 +54,7 @@ void Level::Update()
         delay = 2.0f;
     }
     else drawingCircle = false;
-    //pathfind(starChaser.getPosition(), star.getPosition());
+   /* std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition());*/
 
     gridManager.Update();
 }
@@ -69,8 +80,7 @@ void Level::Draw()
     //Vector2 starChaserOrigin = { starChaser.getPosition().x - 5 + TileData::size / 2, starChaser.getPosition().y - 5 + TileData::size / 2 };
     //Vector2 starOrigin = { star.getPosition().x - 5 + TileData::size / 2, star.getPosition().y - 5 + TileData::size / 2 };
 
-    pathfind(starChaser.getPosition(), star.getPosition());
-
+    //pathfind(starChaser.getPosition(), star.getPosition());
 
     if (IsKeyDown(KEY_B))
     {
@@ -96,8 +106,34 @@ void Level::Draw()
         }
     }
 
-    //std::cout << std::to_string(open_tiles.size()) << std::endl;
-    //std::cout << std::to_string(closed_tiles.size()) << std::endl;
+
+
+    for (int i = 0; i < closed_tiles.size(); i++)
+    {
+        DrawText(TextFormat("F: %i", closed_tiles.at(i).costF()), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y, 15, BLACK);
+        //DrawText(TextFormat("G: %i", closed_tiles.at(i).costG), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 15, 15, RED);
+        //DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
+
+        DrawLine(closed_tiles.at(i).position.x + TileData::size / 2, closed_tiles.at(i).position.y + TileData::size / 2, closed_tiles.at(i).parentPosition.x + TileData::size / 2, closed_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
+    }
+
+    for (int i = 0; i < open_tiles.size(); i++)
+    {
+        DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
+        //DrawText(TextFormat("G: %i", open_tiles.at(i).costG),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 15, 15, RED);
+        //DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
+
+        DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
+    }
+
+    std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition());
+
+    for (int i = 0; i < path.size() - 1; i++)
+    {
+        DrawLine((int)path.at(i).x + TileData::size / 2, (int)path.at(i).y + TileData::size / 2, (int)path.at(i + 1).x + TileData::size / 2, (int)path.at(i + 1).y + TileData::size / 2, RED);
+    }
+
+    
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
 
@@ -212,6 +248,14 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
     Vector2 startTilePos = { start.x - offset, start.y - offset };
     Vector2 endTilePos = { end.x - offset, end.y - offset };
 
+    int tileSize = TileData::size;
+    int tileHalfSize = TileData::size / 2;
+
+    Vector2 startTileOriginPos = { startTilePos.x + tileHalfSize, startTilePos.y + tileHalfSize };
+    Vector2 startTileIndex = { (start.x - offset) / tileSize, (start.y - offset) / tileSize };
+
+    Vector2 endTileOriginPos = { endTilePos.x + tileHalfSize, endTilePos.y + tileHalfSize };
+
     result.push_back(startTilePos);
     result.push_back(endTilePos);
 
@@ -222,28 +266,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
         open_tiles.push_back(startNode);
     }
 
-
-    // look at "start" surrounding 8 nodes
-    int tileHalfSize = TileData::size / 2;
-    int tileSize = TileData::size;
-
-    Vector2 startTileOriginPos = { startTilePos.x + tileHalfSize, startTilePos.y + tileHalfSize };
-    Vector2 startTileIndex = { (start.x - offset) / tileSize, (start.y - offset) / tileSize };
-
-    Vector2 endTileOriginPos = { endTilePos.x + tileHalfSize, endTilePos.y + tileHalfSize };
-
-    //std::vector<TileType> neighbours = gridManager.GetNeighbours((int)startTileIndex.x, (int)startTileIndex.y);
-
-    //if (neighbours.size() > 0)
-    //{
-    //    SetNeighboursGandHCosts(neighbours, startTilePos, end, tileHalfSize);
-    //}
-
-    // find lowest F cost
-
-    //TileType currentTile = gridManager.GetTile((int)open_tiles.at(0).x / TileData::size, (int)open_tiles.at(0).y / TileData::size);
-    //Vector2 currentTilePos = startTilePos;
-
     int index = -1;
     
     while (open_tiles.size() > 0)
@@ -252,17 +274,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
         index = -1;
         for (int i = 0; i < open_tiles.size(); i++)
         {
-            //if (gridManager.grid.tileData.at(i).costF() < gridManager.grid.tileData.at(currentTile).costF()
-            //    || gridManager.grid.tileData.at(i).costF() == gridManager.grid.tileData.at(currentTile).costF()
-            //    && gridManager.grid.tileData.at(i).costH < gridManager.grid.tileData.at(currentTile).costH)
-            //{
-            //    currentTile = gridManager.GetTile((int)open_tiles.at(i).x / TileData::size, (int)open_tiles.at(i).y / TileData::size);
-            //    currentTilePos = open_tiles.at(i);
-            //    index = i;
-            //}
-
-            
-
             if (index == -1 || open_tiles.at(i).costF() <  open_tiles.at(index).costF() 
                  || (open_tiles.at(i).costF() == open_tiles.at(index).costF()
                 && open_tiles.at(i).costH   <  open_tiles.at(index).costH))
@@ -278,58 +289,18 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
             break;
         }
 
-        //if (currentTilePos == endTilePos)
-        //{
-        //    break;
-        //}
-
         if (open_tiles.at(index).position == endTilePos)
         {
+            closed_tiles.push_back(open_tiles.at(index));
+            open_tiles.erase(open_tiles.begin() + index);
             break;
         }
 
-        //for (auto& neighbour : gridManager.GetNeighbours(this, (int)currentTilePos.x / TileData::size, (int)currentTilePos.y / TileData::size))
-        //{
-        //    Vector2 parentTilePos = {};
-        //    if (neighbour == Rock)
-        //    {
-        //        continue;
-        //    }
-        //    if (std::find(closed_tiles.begin(), closed_tiles.end(), neighbour_positions.at(neighbour)) != closed_tiles.end())
-        //    {
-        //        continue;
-        //    }
-
-        //    int newMoveCostToNeighbour = gridManager.grid.tileData.at(currentTile).costG + gridManager.GetDistance(currentTilePos, neighbour_positions.at(neighbour));
-        //    if (newMoveCostToNeighbour < gridManager.grid.tileData.at(gridManager.GetTile((int)neighbour_positions.at(neighbour).x, (int)neighbour_positions.at(neighbour).y)).costG)
-        //    {
-        //        gridManager.grid.tileData.at(gridManager.GetTile((int)neighbour_positions.at(neighbour).x, (int)neighbour_positions.at(neighbour).y)).costG = newMoveCostToNeighbour;
-        //        gridManager.grid.tileData.at(gridManager.GetTile((int)neighbour_positions.at(neighbour).x, (int)neighbour_positions.at(neighbour).y)).costH = gridManager.GetDistance(neighbour_positions.at(neighbour), endTilePos);
-        //        parentTilePos = currentTilePos;
-        //    }
-
-        //    bool openContainsNeighbour = false;
-        //    if (std::find(open_tiles.begin(), open_tiles.end(), neighbour_positions.at(neighbour)) != open_tiles.end())
-        //    {
-        //        openContainsNeighbour = true;
-        //    }
-        //    if (!openContainsNeighbour)
-        //    {
-        //        gridManager.grid.tileData.at(gridManager.GetTile((int)neighbour_positions.at(neighbour).x, (int)neighbour_positions.at(neighbour).y)).costG = newMoveCostToNeighbour;
-        //        gridManager.grid.tileData.at(gridManager.GetTile((int)neighbour_positions.at(neighbour).x, (int)neighbour_positions.at(neighbour).y)).costH = gridManager.GetDistance(neighbour_positions.at(neighbour), endTilePos);
-        //        parentTilePos = currentTilePos;
-        //    }
-        //}
-
-        for (auto n : gridManager.GetNeighbours(open_tiles.at(index).position.x / tileSize, open_tiles.at(index).position.y / tileSize))
+        for (auto n : gridManager.GetNeighbours((int)open_tiles.at(index).position.x / tileSize, (int)open_tiles.at(index).position.y / tileSize))
         {
             Vector2 parentTilePos = {};
-            //if (n == Rock)
-            //{
-            //    continue;
-            //}
 
-            if (gridManager.GetTile(n.x / tileSize, n.y / tileSize) == Rock)
+            if (gridManager.GetTile((int)n.x / tileSize, (int)n.y / tileSize) == Rock)
             {
                 continue;
             }
@@ -345,157 +316,102 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
             pathfindingNode neighbour = {};
             neighbour.position = n;
             neighbour.costG = newMoveCostToNeighbour;
-            neighbour.costH = gridManager.GetDistance(Vector2(n.x + tileHalfSize, n.y + tileHalfSize), endTilePos);
+            neighbour.costH = gridManager.GetDistance(Vector2(n.x + tileHalfSize, n.y + tileHalfSize), endTileOriginPos);
             neighbour.parentPosition = open_tiles.at(index).position;
             open_tiles.push_back(neighbour);
 
-            //if (newMoveCostToNeighbour < open_tiles.at(index).costG)
-            //{
-            //    open_tiles.at(index).costG = newMoveCostToNeighbour;
-            //    open_tiles.at(index).costH = gridManager.GetDistance(n, endTilePos);
-            //    open_tiles.at(index).parentPosition = open_tiles.at(index).position;
-            //}
-
-
-            //bool openContainsNeighbour = false;
-            //if (std::find(open_tiles.begin(), open_tiles.end(), n) != open_tiles.end())
-            //{
-            //    openContainsNeighbour = true;
-            //}
-            //if (!openContainsNeighbour)
-            //{
-                //open_tiles.at(index).costG = newMoveCostToNeighbour;
-                //open_tiles.at(index).costH = gridManager.GetDistance(n, endTilePos);
-                //parentTilePos = open_tiles.at(index).position;
-            //}
         }
 
         if (index >= 0)
         {
-
-            //closed_tiles.push_back(Vector2(currentTilePos.x, currentTilePos.y));
-            //open_tiles.erase(open_tiles.begin() + index);
-
             closed_tiles.push_back(open_tiles.at(index));
             open_tiles.erase(open_tiles.begin() + index);
         }
+
     }
-
-        //for (int i = 1; i < neighbours.size(); i++)
-        //{
-        //    int currentF = gridManager.grid.tileData.at(neighbours.at(i)).costF();
-        //    int previousF = gridManager.grid.tileData.at(neighbours.at(i-1)).costF();
-        //    int currentH = gridManager.grid.tileData.at(neighbours.at(i)).costH;
-        //    int previousH = gridManager.grid.tileData.at(neighbours.at(i-1)).costH;
-        //    TileType currentTile = gridManager.GetTile((int)neighbour_positions.at(i).x / TileData::size, 
-        //                                               (int)neighbour_positions.at(i).y / TileData::size);
-        //    
-        //    if (currentF < previousF && currentTile != Rock) //  SOMETHING IS GOING WRONG HERE, PLEASE HELP!!!
-        //    {
-        //        if (open_tiles.size() > 0)
-        //        {
-        //            open_tiles.push_back(neighbour_positions.at(i));
-        //            closed_tiles.push_back(neighbour_positions.at(i-1));
-        //            open_tiles.erase(open_tiles.begin());
-        //            break;
-        //        }
-        //    }
-        //    else if (currentF == previousF && currentH < previousH  && currentTile != Rock) //  SOMETHING IS GOING WRONG HERE, PLEASE HELP!!!
-        //    {
-        //        if (open_tiles.size() > 0)
-        //        {
-        //            open_tiles.push_back(neighbour_positions.at(i));
-        //            closed_tiles.push_back(neighbour_positions.at(i-1));
-        //            open_tiles.erase(open_tiles.begin());
-        //            break;
-        //        }
-        //    } 
-        //    else if (currentF > previousF && currentTile != Rock)
-        //    {
-        //        if (open_tiles.size() > 0)
-        //        {
-        //            open_tiles.push_back(neighbour_positions.at(i-1));
-        //            closed_tiles.push_back(neighbour_positions.at(i));
-        //            open_tiles.erase(open_tiles.begin());
-        //            break;
-        //        }
-        //    }
-        //}
-
-
-    //DrawLine((int)startTileOriginPos.x, (int)startTileOriginPos.y, (int)endTileOriginPos.x, (int)endTileOriginPos.y, RED);
-    DrawLine((int)open_tiles.at(index).position.x + tileHalfSize, (int)open_tiles.at(index).position.y + tileHalfSize, (int)endTileOriginPos.x, (int)endTileOriginPos.y, RED);
+    
+    result = retracePath(startTilePos, endTilePos, index);
 
     return result;
 }
 
-//void Level::SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize)
-//{
-//    for (int i = -1; i <= 1 ; i++)
-//    {
-//        for (int j = -1; j <= 1 ; j++)
-//        {
-//            if (i == 0 && j == 0)
-//            {
-//                continue;
-//            }
-//
-//            int checkX = (int)startTilePos.x + i;
-//            int checkY = (int)startTilePos.y + j;
-//
-//            if (checkX >= 0 && checkX < gridManager.grid.columns && checkY >= 0 && checkY < gridManager.grid.rows)
-//            {
-//                int tileX = (int)startTilePos.x / TileData::size + i;
-//                int tileY = (int)startTilePos.y / TileData::size + j;
-//                gridManager.grid.tileData.at(gridManager.GetTile(tileX, tileY)).costG = 10;
-//                // figure out how to do this for all neighbours in a good way
-//            }
-//        }
-//    }
-//
-//    gridManager.grid.tileData.at(neighbours.at(0)).costG = 14;
-//    gridManager.grid.tileData.at(neighbours.at(1)).costG = 10;
-//    gridManager.grid.tileData.at(neighbours.at(2)).costG = 14;
-//    gridManager.grid.tileData.at(neighbours.at(3)).costG = 10;
-//    gridManager.grid.tileData.at(neighbours.at(4)).costG = 10;
-//    gridManager.grid.tileData.at(neighbours.at(5)).costG = 14;
-//    gridManager.grid.tileData.at(neighbours.at(6)).costG = 10;
-//    gridManager.grid.tileData.at(neighbours.at(7)).costG = 14;
-//
-//    Vector2 neighbour1OriginPos = { startTilePos.x - tileHalfSize ,startTilePos.y - tileHalfSize };
-//    Vector2 neighbour2OriginPos = { startTilePos.x                ,startTilePos.y - tileHalfSize };
-//    Vector2 neighbour3OriginPos = { startTilePos.x + tileHalfSize ,startTilePos.y - tileHalfSize };
-//    Vector2 neighbour4OriginPos = { startTilePos.x - tileHalfSize ,startTilePos.y                };
-//    Vector2 neighbour5OriginPos = { startTilePos.x + tileHalfSize ,startTilePos.y                };
-//    Vector2 neighbour6OriginPos = { startTilePos.x - tileHalfSize ,startTilePos.y + tileHalfSize };
-//    Vector2 neighbour7OriginPos = { startTilePos.x                ,startTilePos.y + tileHalfSize };
-//    Vector2 neighbour8OriginPos = { startTilePos.x + tileHalfSize ,startTilePos.y + tileHalfSize };
-//
-//    
-//
-//    if (neighbour_positions.size() == 0)
-//    {
-//        neighbour_positions.push_back(Vector2(neighbour1OriginPos.x - tileHalfSize, neighbour1OriginPos.y - tileHalfSize));
-//        neighbour_positions.push_back(Vector2(neighbour2OriginPos.x               , neighbour2OriginPos.y - tileHalfSize));
-//        neighbour_positions.push_back(Vector2(neighbour3OriginPos.x + tileHalfSize, neighbour3OriginPos.y - tileHalfSize));
-//        neighbour_positions.push_back(Vector2(neighbour4OriginPos.x - tileHalfSize, neighbour4OriginPos.y               ));
-//        neighbour_positions.push_back(Vector2(neighbour5OriginPos.x + tileHalfSize, neighbour5OriginPos.y               ));
-//        neighbour_positions.push_back(Vector2(neighbour6OriginPos.x - tileHalfSize, neighbour6OriginPos.y + tileHalfSize));
-//        neighbour_positions.push_back(Vector2(neighbour7OriginPos.x               , neighbour7OriginPos.y + tileHalfSize));
-//        neighbour_positions.push_back(Vector2(neighbour8OriginPos.x + tileHalfSize, neighbour8OriginPos.y + tileHalfSize));
-//    }
-//
-//    
-//
-//    gridManager.grid.tileData.at(neighbours.at(0)).costH = gridManager.GetDistance(neighbour1OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(1)).costH = gridManager.GetDistance(neighbour2OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(2)).costH = gridManager.GetDistance(neighbour3OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(3)).costH = gridManager.GetDistance(neighbour4OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(4)).costH = gridManager.GetDistance(neighbour5OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(5)).costH = gridManager.GetDistance(neighbour6OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(6)).costH = gridManager.GetDistance(neighbour7OriginPos, end);
-//    gridManager.grid.tileData.at(neighbours.at(7)).costH = gridManager.GetDistance(neighbour8OriginPos, end);
-//}
+std::vector<Vector2> Level::retracePath(Vector2 startTile, Vector2 endTile, int index)
+{
+    std::vector<Vector2> path;
+
+    pathfindingNode* currentNode = &closed_tiles.back();
+
+    
+
+    while (true)
+    {
+        path.push_back(currentNode->position);
+
+        if (currentNode->position == startTile)
+        {
+            break;
+        }
+
+        pathfindingNode* parentNode = nullptr;
+
+        for (auto& closed : closed_tiles)
+        {
+            if (currentNode->parentPosition == closed.position)
+            {
+                parentNode = &closed;
+                break;
+            }
+        }
+
+        if (parentNode == nullptr)
+        {
+            assert(false);
+        }
+        
+        currentNode = parentNode;
+        
+    }
+
+    std::reverse(path.begin(), path.end());
+
+    return path;
+
+    //pathfindingNode currentNode = {};
+    //if (open_tiles.size() > 0)
+    //{
+    //    currentNode.position = open_tiles.at(open_tiles.size()-1).position;
+    //    //while (currentNode.position != startNodePos)
+    //    //{
+    //    //    path.push_back(currentNode.position);
+    //    //    currentNode.position = currentNode.parentPosition;
+    //    //}
+    //    for (int i = open_tiles.size() - 1; i > 0 ; i--)
+    //    {
+    //        path.push_back(currentNode.position);
+    //        currentNode.position = open_tiles.at(i).parentPosition;
+    //    }
+    //}
+    ////path.reverse();
+    ////std::list<Vector2>::iterator it;
+    ////for (it == path.begin(); it != path.end(); it++)
+    ////{
+    ////    DrawLine(it->x + TileData::size / 2, it->y + TileData::size / 2,  );
+    ////}
+    //
+    //std::vector<Vector2> reversedPath;
+    //for (int i = (int)path.size() - 1; i > 0; i--)
+    //{
+    //    reversedPath.push_back(path.at(i));
+    //}
+    //for (int i = 0; i < reversedPath.size(); i++)
+    //{
+    //    if (i + 1 != reversedPath.size())
+    //    {
+    //        DrawLine((int)reversedPath.at(i).x, (int)reversedPath.at(i).y, (int)reversedPath.at(i + 1).x, (int)reversedPath.at(i + 1).y, RED);
+    //    }
+    //}
+
+}
 
 void Level::remove_dead_and_add_pending_agents()
 {
