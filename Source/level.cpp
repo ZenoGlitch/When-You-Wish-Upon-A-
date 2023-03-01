@@ -112,7 +112,7 @@ void Level::Draw()
     {
         DrawText(TextFormat("F: %i", closed_tiles.at(i).costF()), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y, 15, BLACK);
         //DrawText(TextFormat("G: %i", closed_tiles.at(i).costG), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 15, 15, RED);
-        //DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
+        DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
 
         DrawLine(closed_tiles.at(i).position.x + TileData::size / 2, closed_tiles.at(i).position.y + TileData::size / 2, closed_tiles.at(i).parentPosition.x + TileData::size / 2, closed_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
@@ -121,7 +121,7 @@ void Level::Draw()
     {
         DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
         //DrawText(TextFormat("G: %i", open_tiles.at(i).costG),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 15, 15, RED);
-        //DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
+        DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
 
         DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
@@ -284,6 +284,22 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
             }
         }
 
+        //for (auto& open : open_tiles)
+        //{
+        //    for (auto& n : gridManager.GetNeighbours(open.position.x, open.position.y))
+        //    {
+
+        //        if (index == -1 || 
+        //            open.costF() < open_tiles.at(index).costF() || 
+        //            (open.costF() == open_tiles.at(index).costF() && open.costH < open_tiles.at(index).costH))
+        //        {
+        //            index += 1;
+        //            found = true;
+        //        }
+
+        //    }
+        //}
+
         if (!found)
         {
             break;
@@ -301,6 +317,11 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
             Vector2 parentTilePos = {};
 
             if (gridManager.GetTile((int)n.x / tileSize, (int)n.y / tileSize) == Rock)
+            {
+                continue;
+            }
+
+            if (n == open_tiles.at(index).position)
             {
                 continue;
             }
