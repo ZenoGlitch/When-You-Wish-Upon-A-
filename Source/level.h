@@ -36,7 +36,7 @@ public: // Functions
 
 	void unload_textures();
 
-	std::vector<Vector2> pathfind(Vector2 start, Vector2 end);
+	std::vector<Vector2> pathfind(Vector2 start, Vector2 end, int maxSteps);
 	std::vector<Vector2> retracePath(Vector2 startTile, Vector2 endTile, int index);
 
 private: // Functions
@@ -56,6 +56,8 @@ private: // Functions
 
 public: // Containers and variables
 
+	int numberOfSteps = 1;
+
 	int last_id = 0;
 
 	struct pathfindingNode 
@@ -65,6 +67,8 @@ public: // Containers and variables
 		int costH; // Distance from end node
 
 		Vector2 position;
+		Vector2 origin();
+		pathfindingNode *getNode(Vector2 position);
 
 		Vector2 parentPosition;
 	};

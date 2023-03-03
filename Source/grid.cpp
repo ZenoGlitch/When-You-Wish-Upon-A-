@@ -240,7 +240,9 @@ int GridManager::GetDistance(Vector2 from, Vector2 to)
 	int distanceX = (int)abs(from.x - to.x);
 	int distanceY = (int)abs(from.y - to.y);
 
-	return sqrt((distanceX * distanceX) + (distanceY * distanceY));
+	//return sqrt((distanceX * distanceX) + (distanceY * distanceY));
+
+	return distanceX + distanceY;
 
 	//if (distanceX > distanceY)
 	//{

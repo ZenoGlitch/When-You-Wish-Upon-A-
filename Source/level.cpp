@@ -56,6 +56,15 @@ void Level::Update()
     else drawingCircle = false;
    /* std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition());*/
 
+    if (IsKeyPressed(KEY_C))
+    {
+        numberOfSteps -= 1;
+    }
+    if (IsKeyPressed(KEY_V))
+    {
+        numberOfSteps += 1;
+    }
+
     gridManager.Update();
 }
 
@@ -126,14 +135,19 @@ void Level::Draw()
         DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
 
-    std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition());
+
+
+    std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition(), numberOfSteps);
 
     for (int i = 0; i < path.size() - 1; i++)
     {
         DrawLine((int)path.at(i).x + TileData::size / 2, (int)path.at(i).y + TileData::size / 2, (int)path.at(i + 1).x + TileData::size / 2, (int)path.at(i + 1).y + TileData::size / 2, RED);
     }
 
-    
+    // testing
+    DrawText(TextFormat("Open tiles:   %i", (int)open_tiles.size()), 10, GetScreenHeight() - 50, 30, BLACK);
+    DrawText(TextFormat("Closed tiles:   %i", (int)closed_tiles.size()), 10, GetScreenHeight() - 80, 30, BLACK);
+
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
 
@@ -237,7 +251,7 @@ int Level::getId(Agent* agent)
     return -1;
 }
 
-std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
+std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
 {
     open_tiles.clear();
     closed_tiles.clear();
@@ -270,6 +284,12 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
     
     while (open_tiles.size() > 0)
     {
+        //if (maxSteps <= 0)
+        //{
+        //    break;
+        //}
+        //maxSteps -= 1;
+
         bool found = false;
         index = -1;
         for (int i = 0; i < open_tiles.size(); i++)
@@ -288,7 +308,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
         //{
         //    for (auto& n : gridManager.GetNeighbours(open.position.x, open.position.y))
         //    {
-
         //        if (index == -1 || 
         //            open.costF() < open_tiles.at(index).costF() || 
         //            (open.costF() == open_tiles.at(index).costF() && open.costH < open_tiles.at(index).costH))
@@ -296,7 +315,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
         //            index += 1;
         //            found = true;
         //        }
-
         //    }
         //}
 
@@ -327,20 +345,63 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end)
             }
 
             if (std::find_if(closed_tiles.begin(), closed_tiles.end(), [n](auto& node) {return node.position == n; }) != closed_tiles.end()
-                || std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end())
+               /* || std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end()*/)
             {
                 continue;
             }
+            else if (std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end())
+            {
+                pathfindingNode *neighbourNode = {};
+                for (auto open : open_tiles)
+                {
+                    if (open.position == n)
+                    {
+                        neighbourNode = &open;
+                        break;
+                    }
+                }
+                int newG = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).position, Vector2(n.x, n.y));
+                if (newG < neighbourNode->costG)
+                {
+                    neighbourNode->costG = newG;
+                    neighbourNode->costF();
+                              
+                    neighbourNode->parentPosition = open_tiles.at(index).position;
+                }
+                else
+                {
+                    continue;
+                }
+            }
 
-            int newMoveCostToNeighbour = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).position, Vector2( n.x + tileHalfSize, n.y + tileHalfSize));
-       
+
+            //if (std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end())
+            //{
+            //    
+            //    continue;
+            //}
+
+            //std::cout << index << std::endl;
+
+
+            int newMoveCostToNeighbour = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).origin(), Vector2(n.x + tileHalfSize, n.y + tileHalfSize));
+            
+            if (/*index == -1 &&*/ newMoveCostToNeighbour < open_tiles.at(index).costG)
+            {
+                continue;
+            }
+            
             pathfindingNode neighbour = {};
             neighbour.position = n;
+            //if (index == -1 || open_tiles.at(index).parentPosition == neighbour.parentPosition)
+            //{
+            //    continue;
+            //}
             neighbour.costG = newMoveCostToNeighbour;
             neighbour.costH = gridManager.GetDistance(Vector2(n.x + tileHalfSize, n.y + tileHalfSize), endTileOriginPos);
             neighbour.parentPosition = open_tiles.at(index).position;
-            open_tiles.push_back(neighbour);
 
+            open_tiles.push_back(neighbour);
         }
 
         if (index >= 0)
@@ -500,37 +561,102 @@ Vector2 Level::PositionOnRandomTile()
 
     result = { (float)(randTileX * TileData::size + offset), (float)(randTileY * TileData::size + offset) };
 
+    while (true)
+    {
+        if (gridManager.GetTile(result.x / TileData::size, result.y / TileData::size) == Rock)
+        {
+            int randTileX = rand() % gridManager.grid.columns;
+            int randTileY = rand() % gridManager.grid.rows;
+            int offset = 5;
+
+            result = { (float)(randTileX * TileData::size + offset), (float)(randTileY * TileData::size + offset) };
+        }
+        else
+        {
+            break;
+        }
+    }
+
     return result;
 }
 
 void Level::set_spawn_positions()
 {
+    // Set STAR start position
+    bool starStartTtileIsValid = true;
     Vector2 starSpawnPos = PositionOnRandomTile();
+    //if (gridManager.GetTile(starSpawnPos.x / TileData::size, starSpawnPos.y / TileData::size) == Rock)
+    //{
+    //    false;
+    //}
+    //if (!starStartTtileIsValid)
+    //{
+    //    starSpawnPos = PositionOnRandomTile();
+    //}
+    //else
+    //{
+    //    star.setPosition(starSpawnPos);
+    //}
     star.setPosition(starSpawnPos);
 
+
+    // Set TRADING POST start position
+    bool tradePostStartTileIsValid = true;
     Vector2 tradePostSpawnPos = PositionOnRandomTile();
-    if (tradePostSpawnPos.x == starSpawnPos.x && tradePostSpawnPos.y == starSpawnPos.y)
+    if (tradePostSpawnPos.x == starSpawnPos.x && tradePostSpawnPos.y == starSpawnPos.y 
+        /*|| gridManager.GetTile(tradePostSpawnPos.x / TileData::size, tradePostSpawnPos.y / TileData::size) == Rock*/)
+    {
+        tradePostStartTileIsValid = false;
+    }
+    if (!tradePostStartTileIsValid)
     {
         Vector2 tradePostSpawnPos = PositionOnRandomTile();
     }
-    tradePost.setPosition(tradePostSpawnPos);
-
-
-    Vector2 starChaserSpawnPos = PositionOnRandomTile();
-    if (starChaserSpawnPos.x == tradePostSpawnPos.x && starChaserSpawnPos.y == tradePostSpawnPos.y)
+    else
     {
-        Vector2 starChaserSpawnPos = PositionOnRandomTile();
-        if (starChaserSpawnPos.x == starSpawnPos.x && starChaserSpawnPos.y == starSpawnPos.y)
-        {
-            Vector2 starChaserSpawnPos = PositionOnRandomTile();
-        }
+        tradePost.setPosition(tradePostSpawnPos);
+    }
+    //tradePost.setPosition(tradePostSpawnPos);
+
+
+    // Set STARCHASER start position
+    bool starChaserStartTileIsValid = true;
+    Vector2 starChaserSpawnPos = PositionOnRandomTile();
+    if (starChaserSpawnPos.x == tradePostSpawnPos.x && starChaserSpawnPos.y == tradePostSpawnPos.y
+        || starChaserSpawnPos.x == starSpawnPos.x && starChaserSpawnPos.y == starSpawnPos.y
+        /*|| gridManager.GetTile(starChaserSpawnPos.x / TileData::size, starChaserSpawnPos.y / TileData::size) == Rock*/)
+    {
+        starChaserStartTileIsValid = false;
+    }
+    if (!starChaserStartTileIsValid)
+    {
+        starChaserSpawnPos = PositionOnRandomTile();
+    }
+    else
+    {
+        starChaser.setPosition(starChaserSpawnPos);
     }
 
-    starChaser = StarChaser(&starChaser_texture, star.getPosition());
-    starChaser.setPosition(starChaserSpawnPos);
+    //starChaser = StarChaser(&starChaser_texture, star.getPosition());
+}
+
+Level::pathfindingNode *Level::pathfindingNode::getNode(Vector2 p_position)
+{
+    if (position == p_position)
+    {
+        return this;
+    }
+    else
+        return nullptr;
 }
 
 int Level::pathfindingNode::costF()
 {
     return costG + costH;
 }
+
+Vector2 Level::pathfindingNode::origin()
+{
+    return Vector2(position.x + TileData::size / 2, position.y + TileData::size / 2);
+}
+
