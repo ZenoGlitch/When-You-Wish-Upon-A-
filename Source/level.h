@@ -39,6 +39,8 @@ public: // Functions
 	std::vector<Vector2> pathfind(Vector2 start, Vector2 end, int maxSteps);
 	std::vector<Vector2> retracePath(Vector2 startTile, Vector2 endTile, int index);
 
+	bool isDestinationValid(Vector2 p_destination_position);
+
 private: // Functions
 
 	void remove_dead_and_add_pending_agents();
