@@ -10,14 +10,13 @@ public:
 	StarChaser(Texture *p_texture, Vector2 p_targetPosition);
 
 	void sense(Level *level) override;
-	void decide()						 override;
-	void act(Level *level)				 override;
-
-	//void aStar(Level *level);
+	void decide()			 override;
+	void act(Level *level)	 override;
 
 	void draw()				 override;
 
 	float getEnergy()		 override;
+
 	void setTexture(Texture& p_texture);
 
 private:

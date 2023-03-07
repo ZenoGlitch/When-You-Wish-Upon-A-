@@ -116,37 +116,56 @@ void Level::Draw()
     }
 
 
-
-    for (int i = 0; i < closed_tiles.size(); i++)
+    // Draw F, G and H costs for each closed tile and draw line from current node to it's parent
+    for (int i = 0; i < closed_tiles.size(); i++) // Draw the F, G and H costs for each closed tile
     {
         DrawText(TextFormat("F: %i", closed_tiles.at(i).costF()), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y, 15, BLACK);
         //DrawText(TextFormat("G: %i", closed_tiles.at(i).costG), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 15, 15, RED);
         DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
-
         DrawLine(closed_tiles.at(i).position.x + TileData::size / 2, closed_tiles.at(i).position.y + TileData::size / 2, closed_tiles.at(i).parentPosition.x + TileData::size / 2, closed_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
 
+    //Draw F, G and H costs for each open tile and draw line from current node to it's parent
     for (int i = 0; i < open_tiles.size(); i++)
     {
         DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
         //DrawText(TextFormat("G: %i", open_tiles.at(i).costG),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 15, 15, RED);
         DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
-
         DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
 
 
+    std::vector<Vector2> starNeighbours = gridManager.GetNeighbours(star.getPosition().x / TileData::size, star.getPosition().y / TileData::size);
 
-    std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition(), numberOfSteps);
-
-    for (int i = 0; i < path.size() - 1; i++)
+    int amonuntOfRockNeighbours = 0;
+    bool starTileValidAsDestination = true;
+    for (auto sN : starNeighbours)
     {
-        DrawLine((int)path.at(i).x + TileData::size / 2, (int)path.at(i).y + TileData::size / 2, (int)path.at(i + 1).x + TileData::size / 2, (int)path.at(i + 1).y + TileData::size / 2, RED);
+        
+        TileType currentlyLookedAtTile = gridManager.GetTile(sN.x / TileData::size, sN.y / TileData::size);
+        if (currentlyLookedAtTile == Rock)
+        {
+            amonuntOfRockNeighbours += 1;
+        }
+    }
+    if (amonuntOfRockNeighbours >= starNeighbours.size())
+    {
+        starTileValidAsDestination = false;
+    }
+
+    if (starTileValidAsDestination)
+    {
+        std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition(), numberOfSteps);
+
+        for (int i = 0; i < path.size() - 1; i++) // Draw the resulting path selected by A*
+        {
+            DrawLine((int)path.at(i).x + TileData::size / 2, (int)path.at(i).y + TileData::size / 2, (int)path.at(i + 1).x + TileData::size / 2, (int)path.at(i + 1).y + TileData::size / 2, RED);
+        }
     }
 
     // testing
-    DrawText(TextFormat("Open tiles:   %i", (int)open_tiles.size()), 10, GetScreenHeight() - 50, 30, BLACK);
-    DrawText(TextFormat("Closed tiles:   %i", (int)closed_tiles.size()), 10, GetScreenHeight() - 80, 30, BLACK);
+    DrawText(TextFormat("Open tiles:   %i", (int)open_tiles.size()), 10, GetScreenHeight() - 50, 30, BLACK); // Draw number of open tiles on screen
+    DrawText(TextFormat("Closed tiles:   %i", (int)closed_tiles.size()), 10, GetScreenHeight() - 80, 30, BLACK); // Draw number of closed tiles on screen
 
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
@@ -284,6 +303,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
     
     while (open_tiles.size() > 0)
     {
+        //// Uncomment code below to add the ability to step through the A* pathfinding for debugging
         //if (maxSteps <= 0)
         //{
         //    break;
@@ -303,20 +323,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
                 found = true;
             }
         }
-
-        //for (auto& open : open_tiles)
-        //{
-        //    for (auto& n : gridManager.GetNeighbours(open.position.x, open.position.y))
-        //    {
-        //        if (index == -1 || 
-        //            open.costF() < open_tiles.at(index).costF() || 
-        //            (open.costF() == open_tiles.at(index).costF() && open.costH < open_tiles.at(index).costH))
-        //        {
-        //            index += 1;
-        //            found = true;
-        //        }
-        //    }
-        //}
 
         if (!found)
         {
@@ -344,8 +350,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
                 continue;
             }
 
-            if (std::find_if(closed_tiles.begin(), closed_tiles.end(), [n](auto& node) {return node.position == n; }) != closed_tiles.end()
-               /* || std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end()*/)
+            if (std::find_if(closed_tiles.begin(), closed_tiles.end(), [n](auto& node) {return node.position == n; }) != closed_tiles.end())
             {
                 continue;
             }
@@ -374,16 +379,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
                 }
             }
 
-
-            //if (std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end())
-            //{
-            //    
-            //    continue;
-            //}
-
-            //std::cout << index << std::endl;
-
-
             int newMoveCostToNeighbour = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).origin(), Vector2(n.x + tileHalfSize, n.y + tileHalfSize));
             
             if (/*index == -1 &&*/ newMoveCostToNeighbour < open_tiles.at(index).costG)
@@ -393,10 +388,6 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
             
             pathfindingNode neighbour = {};
             neighbour.position = n;
-            //if (index == -1 || open_tiles.at(index).parentPosition == neighbour.parentPosition)
-            //{
-            //    continue;
-            //}
             neighbour.costG = newMoveCostToNeighbour;
             neighbour.costH = gridManager.GetDistance(Vector2(n.x + tileHalfSize, n.y + tileHalfSize), endTileOriginPos);
             neighbour.parentPosition = open_tiles.at(index).position;
@@ -422,8 +413,6 @@ std::vector<Vector2> Level::retracePath(Vector2 startTile, Vector2 endTile, int 
     std::vector<Vector2> path;
 
     pathfindingNode* currentNode = &closed_tiles.back();
-
-    
 
     while (true)
     {
@@ -457,41 +446,6 @@ std::vector<Vector2> Level::retracePath(Vector2 startTile, Vector2 endTile, int 
     std::reverse(path.begin(), path.end());
 
     return path;
-
-    //pathfindingNode currentNode = {};
-    //if (open_tiles.size() > 0)
-    //{
-    //    currentNode.position = open_tiles.at(open_tiles.size()-1).position;
-    //    //while (currentNode.position != startNodePos)
-    //    //{
-    //    //    path.push_back(currentNode.position);
-    //    //    currentNode.position = currentNode.parentPosition;
-    //    //}
-    //    for (int i = open_tiles.size() - 1; i > 0 ; i--)
-    //    {
-    //        path.push_back(currentNode.position);
-    //        currentNode.position = open_tiles.at(i).parentPosition;
-    //    }
-    //}
-    ////path.reverse();
-    ////std::list<Vector2>::iterator it;
-    ////for (it == path.begin(); it != path.end(); it++)
-    ////{
-    ////    DrawLine(it->x + TileData::size / 2, it->y + TileData::size / 2,  );
-    ////}
-    //
-    //std::vector<Vector2> reversedPath;
-    //for (int i = (int)path.size() - 1; i > 0; i--)
-    //{
-    //    reversedPath.push_back(path.at(i));
-    //}
-    //for (int i = 0; i < reversedPath.size(); i++)
-    //{
-    //    if (i + 1 != reversedPath.size())
-    //    {
-    //        DrawLine((int)reversedPath.at(i).x, (int)reversedPath.at(i).y, (int)reversedPath.at(i + 1).x, (int)reversedPath.at(i + 1).y, RED);
-    //    }
-    //}
 
 }
 

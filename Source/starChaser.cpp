@@ -26,11 +26,6 @@ void StarChaser::act(Level *level)
 
 }
 
-//void StarChaser::aStar(Level *level)
-//{
-//
-//}
-
 void StarChaser::draw()
 {
 	DrawTexture(*texture, (int)getPosition().x, (int)getPosition().y, WHITE);

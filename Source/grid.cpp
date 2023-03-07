@@ -206,6 +206,7 @@ TileType &GridManager::GetTile(int x, int y)
 	return grid.map[x][y];
 }
 
+// get neighbour by grid index
 std::vector<Vector2> GridManager::GetNeighbours(/*Level *level,*/ int x, int y)
 {
 	std::vector<Vector2> neighbours;
@@ -230,6 +231,7 @@ std::vector<Vector2> GridManager::GetNeighbours(/*Level *level,*/ int x, int y)
 		}
 	}
 
+	// returns neighbours positions in pixels
 	return neighbours;
 }
 
