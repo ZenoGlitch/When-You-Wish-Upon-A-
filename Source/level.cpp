@@ -351,7 +351,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
             }
             else if (std::find_if(open_tiles.begin(), open_tiles.end(), [n](auto& node) {return node.position == n; }) != open_tiles.end())
             {
-                pathfindingNode *neighbourNode = {};
+                pathfindingNode *neighbourNode = nullptr;
                 for (auto open : open_tiles)
                 {
                     if (open.position == n)
@@ -361,7 +361,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
                     }
                 }
                 int newG = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).position, Vector2(n.x, n.y));
-                if (newG < neighbourNode->costG)
+                if (neighbourNode != nullptr && newG < neighbourNode->costG)
                 {
                     neighbourNode->costG = newG;
                     neighbourNode->costF();
