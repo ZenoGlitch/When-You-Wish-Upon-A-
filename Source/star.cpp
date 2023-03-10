@@ -6,7 +6,7 @@
 Star::Star(Level *level)
 	: texture(&level->star_texture)
 {
-	setPosition(Vector2(500.0f, 500.0f));
+	setPosition(Vector2(500.0f, -70.0f));
 }
 
 void Star::sense(Level* level)

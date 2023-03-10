@@ -37,8 +37,14 @@ void Level::Update()
     timef += GetFrameTime();
     delay -= GetFrameTime();
 
+    if (IsKeyDown(KEY_TAB))
+    {
+        drawControlScheme = true;
+    }
+    else drawControlScheme = false;
+
     // Cycle tile type when tile is clicked
-    if (IsMouseButtonPressed(0))
+    if (IsMouseButtonPressed(0) && !starChaserHeldByMouse)
     {
         drawingCircle = true;
 
@@ -54,18 +60,78 @@ void Level::Update()
         delay = 2.0f;
     }
     else drawingCircle = false;
-   /* std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition());*/
 
-    if (IsKeyPressed(KEY_C))
+    if (IsKeyPressed(KEY_ONE))
     {
-        numberOfSteps -= 1;
+        closed_tiles.clear();
+        open_tiles.clear();
+        starChaser.path.clear();
+
+        starChaserHeldByMouse = true;
     }
-    if (IsKeyPressed(KEY_V))
+
+    if (IsKeyPressed(KEY_TWO))
     {
-        numberOfSteps += 1;
+        closed_tiles.clear();
+        open_tiles.clear();
+        starChaser.path.clear();
+
+        starHeldByMouse = true;
     }
+
+    if (starChaserHeldByMouse)
+    {
+        starChaser.setPosition(GetMousePosition());
+        if (IsMouseButtonPressed(0))
+        {
+            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
+            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
+            int releasePosX = tilePosX * TileData::size + 5;
+            int releasePosY = tilePosY * TileData::size + 5;
+            Vector2 releasePos = { releasePosX, releasePosY };
+            starChaser.setPosition(releasePos);
+            starChaserHeldByMouse = false;
+        }
+    }
+
+    if (starHeldByMouse)
+    {
+        star.setPosition(GetMousePosition());
+        if (IsMouseButtonPressed(0))
+        {
+            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
+            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
+            int releasePosX = tilePosX * TileData::size + 5;
+            int releasePosY = tilePosY * TileData::size + 5;
+            Vector2 releasePos = { releasePosX, releasePosY };
+            star.setPosition(releasePos);
+            starHeldByMouse = false;
+        }
+    }
+
+    // Debug controls
+    //if (IsKeyPressed(KEY_C) && numberOfSteps >= 0)
+    //{
+    //    numberOfSteps -= 1;
+    //}
+    //if (IsKeyPressed(KEY_V))
+    //{
+    //    numberOfSteps += 1;
+    //}
+    if (IsKeyPressed(KEY_B))
+    {
+        drawingOpenAndClosedTiles = true;
+    }
+    if (IsKeyReleased(KEY_B))
+    {
+        drawingOpenAndClosedTiles = false;
+    }
+
+    starChaser.act(this);
 
     gridManager.Update();
+    
+    
 }
 
 void Level::Draw()
@@ -91,7 +157,7 @@ void Level::Draw()
 
     //pathfind(starChaser.getPosition(), star.getPosition());
 
-    if (IsKeyDown(KEY_B))
+    if (drawingOpenAndClosedTiles)
     {
         if (open_tiles.size() > 0)
         {
@@ -134,13 +200,14 @@ void Level::Draw()
         DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
 
-    if (isDestinationValid(star.getPosition()))
+    if (starChaser.path.size() > 0)
     {
-        std::vector<Vector2> path = pathfind(starChaser.getPosition(), star.getPosition(), numberOfSteps);
-
-        for (int i = 0; i < path.size() - 1; i++) // Draw the resulting path selected by A*
+        for (int i = 0; i < starChaser.path.size() - 1; i++) // Draw the resulting path selected by A*
         {
-            DrawLine((int)path.at(i).x + TileData::size / 2, (int)path.at(i).y + TileData::size / 2, (int)path.at(i + 1).x + TileData::size / 2, (int)path.at(i + 1).y + TileData::size / 2, RED);
+            DrawLine((int)starChaser.path.at(i).x + TileData::size / 2,
+                (int)starChaser.path.at(i).y + TileData::size / 2,
+                (int)starChaser.path.at(i + 1).x + TileData::size / 2,
+                (int)starChaser.path.at(i + 1).y + TileData::size / 2, RED);
         }
     }
 
@@ -150,6 +217,21 @@ void Level::Draw()
 
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
+
+    if (drawControlScheme)
+    {
+        int centerScreenX = GetScreenWidth() / 2;
+        int centerScreenY = GetScreenHeight() / 2;
+
+        int fontSize = 30;
+
+        DrawRectangle(0, centerScreenY - 150, 850, 350, LIGHTGRAY);
+        DrawText(TextFormat("Pick up Star Chaser: 1"), 50, centerScreenY -100, fontSize, BLACK);
+        DrawText(TextFormat("Pick up Star: 2"), 50, centerScreenY - 50, fontSize, BLACK );
+        DrawText(TextFormat("Pick up Trading Post : 3"), 50, centerScreenY, fontSize, BLACK );
+        DrawText(TextFormat("Pick up Spaceship : 4"), 50, centerScreenY + 50, fontSize, BLACK );
+        DrawText(TextFormat("Place held actor / Change tile type : Left Click"), 50, centerScreenY + 100, fontSize, BLACK );
+    }
 
 }
 

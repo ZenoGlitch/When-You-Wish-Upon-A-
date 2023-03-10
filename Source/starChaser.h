@@ -2,6 +2,8 @@
 
 #include "agent.h"
 
+#include <vector>
+
 class StarChaser : public Agent
 {
 public:
@@ -19,6 +21,10 @@ public:
 
 	void setTexture(Texture& p_texture);
 
+	std::vector<Vector2> path;
+
+	bool destinationReached = false;
+
 private:
 
 	enum Sense
@@ -32,12 +38,13 @@ private:
 	} decision = undecided;
 
 
-
 	Vector2 targetPosition;
 
 	Texture *texture;
 
 	float energy;
 
+	const float moveTimerReset = 1.0f;
+	float moveTimer = moveTimerReset;
 
 };

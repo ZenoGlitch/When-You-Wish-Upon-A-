@@ -94,9 +94,17 @@ public: // Containers and variables
 
 	GridManager gridManager;
 
+	Star star;
+	TradingPost tradePost;
+	StarChaser starChaser;
+
 	Texture star_texture;
 	Texture tradePost_texture;
 	Texture starChaser_texture;
+
+	bool starChaserHeldByMouse = false;
+	bool starHeldByMouse = false;
+
 
 private: // Containers and variables
 
@@ -105,10 +113,8 @@ private: // Containers and variables
 	float timef = 0;
 
 	bool drawingCircle = false;
-
-	Star star;
-	TradingPost tradePost;
-	StarChaser starChaser;
+	bool drawingOpenAndClosedTiles = false;
+	bool drawControlScheme = false;
 
 	float delay = 2.0f;
 
