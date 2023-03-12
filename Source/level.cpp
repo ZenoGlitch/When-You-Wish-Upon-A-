@@ -25,8 +25,7 @@ void Level::Initialize()
     set_texures();
 
     set_spawn_positions();
-    
-
+    starChaser.initialize();
 }
 
 void Level::Update()
@@ -127,6 +126,8 @@ void Level::Update()
         drawingOpenAndClosedTiles = false;
     }
 
+    starChaser.sense(this);
+    starChaser.decide();
     starChaser.act(this);
 
     gridManager.Update();
@@ -148,9 +149,9 @@ void Level::Draw()
         DrawCircle((int)GetMousePosition().x, (int)GetMousePosition().y, 10, RED);
     }
 
-    star.draw();
-    tradePost.draw();
-    starChaser.draw();
+    tradePost.draw(this);
+    star.draw(this);
+    starChaser.draw(this);
 
     //Vector2 starChaserOrigin = { starChaser.getPosition().x - 5 + TileData::size / 2, starChaser.getPosition().y - 5 + TileData::size / 2 };
     //Vector2 starOrigin = { star.getPosition().x - 5 + TileData::size / 2, star.getPosition().y - 5 + TileData::size / 2 };
@@ -205,9 +206,9 @@ void Level::Draw()
         for (int i = 0; i < starChaser.path.size() - 1; i++) // Draw the resulting path selected by A*
         {
             DrawLine((int)starChaser.path.at(i).x + TileData::size / 2,
-                (int)starChaser.path.at(i).y + TileData::size / 2,
-                (int)starChaser.path.at(i + 1).x + TileData::size / 2,
-                (int)starChaser.path.at(i + 1).y + TileData::size / 2, RED);
+                     (int)starChaser.path.at(i).y + TileData::size / 2,
+                     (int)starChaser.path.at(i + 1).x + TileData::size / 2,
+                     (int)starChaser.path.at(i + 1).y + TileData::size / 2, RED);
         }
     }
 
@@ -282,18 +283,18 @@ Agent* Level::SpawnAgent(std::string agentType)
     //    star_agents.push_back(agent);
     //    result = &star_agents.back();
     //}
-    //else if (agentType == "starChaser")
-    //{
-    //    StarChaser agent;
-    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
-    //    Tile spawnTile = gridManager.GetTile((int)(randPos.x / 96), (int)(randPos.y / 54));
-    //    Vector2 spawnPos = spawnTile.position;
-    //    spawnPos.x = spawnTile.position.x + spawnTile.width / 2;
-    //    spawnPos.y = spawnTile.position.y + spawnTile.height / 2;
-    //    agent.setPosition(spawnPos);
-    //    starChaser_agents.push_back(agent);
-    //    result = &starChaser_agents.back();
-    //}
+    if (agentType == "StarChaser")
+    {
+        StarChaser agent;
+        Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
+        TileType spawnTileType = gridManager.GetTile((int)(randPos.x / TileData::size), (int)(randPos.y / TileData::size));
+        Vector2 spawnPos;
+        spawnPos.x = randPos.x + TileData::size / 2;
+        spawnPos.y = randPos.y + TileData::size / 2;
+        agent.setPosition(spawnPos);
+        starChaser_agents.push_back(agent);
+        result = &starChaser_agents.back();
+    }
     //else if (agentType == "tradingPost")
     //{
     //    TradingPost agent;

@@ -37,9 +37,12 @@ void Star::act(Level* level)
 	//}
 }
 
-void Star::draw()
+void Star::draw(Level* level)
 {
-	DrawTexture(*texture, (int)getPosition().x, (int)getPosition().y, WHITE );
+	if (texture != nullptr)
+	{
+		DrawTexture(*texture, (int)getPosition().x, (int)getPosition().y, WHITE );
+	}
 }
 
 float Star::getEnergy()

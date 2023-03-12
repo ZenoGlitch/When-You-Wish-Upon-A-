@@ -15,7 +15,7 @@ public:
 	void decide()			 override;
 	void act(Level* level)	 override;
 
-	void draw()				 override;
+	void draw(Level* level)	 override;
 
 	float getEnergy()		 override;
 

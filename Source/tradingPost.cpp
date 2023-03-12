@@ -24,7 +24,7 @@ void TradingPost::act(Level* level)
 
 }
 
-void TradingPost::draw()
+void TradingPost::draw(Level* level)
 {
 	DrawTexture(*texture, (int)getPosition().x, (int)getPosition().y, WHITE);
 }

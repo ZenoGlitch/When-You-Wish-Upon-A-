@@ -14,7 +14,7 @@ public:
 	virtual void decide() = 0;
 	virtual void act(Level* level) = 0;
 
-	virtual void draw() = 0;
+	virtual void draw(Level* level) = 0;
 
 	void setPosition(Vector2 p_position);
 

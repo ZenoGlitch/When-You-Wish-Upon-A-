@@ -82,7 +82,7 @@ public: // Containers and variables
 	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.
 
 	//std::list<Star> star_agents;
-	//std::list<StarChaser> starChaser_agents;
+	std::list<StarChaser> starChaser_agents;
 	//std::list<TradingPost> tradingPost_agents;
 	
 	// @AddMoreHere

@@ -1,14 +1,24 @@
 #include "starChaser.h"
 
 #include "level.h"
+#include <cassert>
 
-StarChaser::StarChaser(Texture *p_texture, Vector2 p_targetPosition)
-	: texture(p_texture)
-	, targetPosition(p_targetPosition)
-	, sensing(idle)
-	, decision(undecided)
+//StarChaser::StarChaser(Texture *p_texture, Vector2 p_targetPosition)
+//	: texture(p_texture)
+//	, targetPosition(p_targetPosition)
+//	, sensing(idle)
+//	, decision(undecided)
+//	, energy(maxEnergy)
+//{
+//}
+
+void StarChaser::initialize()
 {
-	energy = 50.0f;
+	//sensing = idle;
+	//decision = undecided;
+
+	state = idle;
+	energy = maxEnergy;
 }
 
 void StarChaser::sense(Level *level)
@@ -22,24 +32,44 @@ void StarChaser::sense(Level *level)
 
 	if (destinationReached && posX == starPosX && posY == starPosy)
 	{
-		sensing = isCarrying;
+		/*sensing = isCarrying;*/
+		state = isCarrying;
 		path.clear();
+		pathFound = false;
 	}
 	else if (destinationReached && posX == tradePosX && posY == tradePosY)
 	{
-		sensing = idle;
+		/*sensing = idle;*/
+		state = idle;
 		path.clear();
+		pathFound = false;
 	}
 
 	if (level->starChaserHeldByMouse)
 	{
-		sensing = idle;
+		/*sensing = beingHeld;*/
+		state = beingHeld;
+		pathFound = false;
+	}
+	if (/*sensing == beingHeld*/ state == beingHeld && !level->starChaserHeldByMouse)
+	{
+		/*sensing = idle;*/
+		state = idle;
 	}
 
-	if (sensing == idle && posX != starPosX && posY != starPosy)
+	if (/*sensing == idle*/ state == idle && posX != starPosX && posY != starPosy)
 	{
-		sensing = lookingForStar;
+		/*sensing = lookingForStar;*/
+		state = lookingForStar;
 	}
+
+
+	if (energy <= 0)
+	{
+		/*sensing = energyLow;*/
+		state = energyLow;
+	}
+
 
 	//if (decision == movingToStar)
 	//{
@@ -60,43 +90,65 @@ void StarChaser::sense(Level *level)
 
 void StarChaser::decide()
 {
-	if (sensing == lookingForStar)
-	{
-		decision = movingToStar;
-		
-	}
+	//if (/*sensing == idle*/ state == idle|| sensing == beingHeld)
+	//{
+	//	/*decision = undecided;*/
+	//	state = undecided; // hmm
+	//}
 
-	if (sensing == isCarrying)
-	{
-		decision = movingToTrade;
-	}
+	//if (sensing == lookingForStar)
+	//{
+	//	decision = movingToStar;
+	//}
 
+	//if (sensing == isCarrying)
+	//{
+	//	decision = movingToTrade;
+	//}
+
+	//if (sensing == energyLow)
+	//{
+	//	decision = movingToShip;
+	//}
 }
 
-	bool pathFound = false;
+
 			int it = 0;
 void StarChaser::act(Level *level)
 {
-
-	if (/*sensing == lookingForStar &&*/ !pathFound)
+	const float moveEnergyDrain = 1.0f;
+	if (/*decision == movingToStar*/ state == movingToStar && !pathFound)
 	{
 		path = level->pathfind(getPosition(), level->star.getPosition(), level->numberOfSteps);
+		if (path.empty())
+		{
+			assert(false);
+		}
 		pathFound = true;
 	}
 
+	if (/*sensing == isCarrying*/ state == isCarrying && !pathFound)
+	{
+		path = level->pathfind(getPosition(), level->tradePost.getPosition(), level->numberOfSteps);
+		if (path.empty())
+		{
+			assert(false);
+		}
+		pathFound = true;
+	}
 
 	//if (path.size() <= 0)
 	//{
 
 	//}
 
-	if (path.size() > 0)
+	if (!path.empty())
 	{
 		/*if (decision == movingToStar)
 		{*/
 			moveTimer -= GetFrameTime();
 
-			if (moveTimer <= 0)
+			if (moveTimer <= 0 && !destinationReached)
 			{
 				if (it < path.size() - 1)
 				{
@@ -107,20 +159,26 @@ void StarChaser::act(Level *level)
 					destinationReached = true;
 				}
 				setPosition(path.at(it));
+				if (/*sensing == isCarrying*/ state == isCarrying)
+				{
+					level->star.setPosition(getPosition());
+				}
+				energy -= moveEnergyDrain;
 				moveTimer = moveTimerReset;
 			}
 		/*}*/
 	}
 }
 
-void StarChaser::draw()
+void StarChaser::draw(Level* level)
 {
 	DrawTexture(*texture, (int)getPosition().x, (int)getPosition().y, WHITE);
+	DrawText(TextFormat("Energy: %i", energy), (int)getPosition().x, (int)getPosition().y - 5, 15, BLACK);
 }
 
 float StarChaser::getEnergy()
 {
-	return energy;
+	return (float)energy;
 }
 
 void StarChaser::setTexture(Texture& p_texture)

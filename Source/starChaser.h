@@ -9,13 +9,14 @@ class StarChaser : public Agent
 public:
 
 	StarChaser() = default;
-	StarChaser(Texture *p_texture, Vector2 p_targetPosition);
+	//StarChaser(Texture *p_texture, Vector2 p_targetPosition);
 
+	void initialize();
 	void sense(Level *level) override;
 	void decide()			 override;
 	void act(Level *level)	 override;
 
-	void draw()				 override;
+	void draw(Level * level) override;
 
 	float getEnergy()		 override;
 
@@ -27,24 +28,38 @@ public:
 
 private:
 
-	enum Sense
-	{
-		lookingForStar, isCarrying, idle
-	} sensing = idle;
+	//enum Sense
+	//{
+	//	energyLow, lookingForStar, isCarrying, idle, beingHeld
+	//} sensing = idle;
 
-	enum Decide
-	{
-		movingToStar, movingToTrade, undecided
-	} decision = undecided;
+	//enum Decide
+	//{
+	//	movingToStar, movingToTrade, movingToShip, undecided
+	//} decision = undecided;
 
+	enum State
+	{
+		energyLow, 
+		lookingForStar, 
+		isCarrying, 
+		movingToStar, 
+		movingToTrade, 
+		movingToShip, 
+		beingHeld, 
+		idle,
+
+	} state = idle;
 
 	Vector2 targetPosition;
 
 	Texture *texture;
 
-	float energy;
+	const int maxEnergy = 15;
+	int energy;
 
 	const float moveTimerReset = 1.0f;
 	float moveTimer = moveTimerReset;
+	bool pathFound = false;
 
 };
