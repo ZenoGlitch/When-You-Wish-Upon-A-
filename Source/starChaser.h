@@ -22,6 +22,8 @@ public:
 
 	void setTexture(Texture& p_texture);
 
+	void rechargeEnergy();
+
 	std::vector<Vector2> path;
 
 	bool destinationReached = false;
@@ -33,7 +35,8 @@ private:
 		energyLow, 
 		movingToStar, 
 		movingToTrade, 
-		movingToShip, 
+		movingToShip,
+		recharging,
 		beingHeld, 
 		idle,
 
@@ -57,6 +60,8 @@ private:
 	bool shouldMoveToShip = false;
 
 	bool shouldDeactivate = false;
+	bool shouldRechargeEnergy = false;
+	bool fullyCharged = true;
 
 
 };

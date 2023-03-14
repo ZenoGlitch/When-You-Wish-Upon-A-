@@ -28,8 +28,8 @@ void StarChaser::sense(Level *level)
 	float starPosy = level->star.getPosition().y;
 	float tradePosX = level->tradePost.getPosition().x;
 	float tradePosY = level->tradePost.getPosition().y;
-	float shipPosX = level->tradePost.getPosition().x;
-	float shipPosY = level->tradePost.getPosition().y;
+	float shipPosX = level->spaceShip.getPosition().x;
+	float shipPosY = level->spaceShip.getPosition().y;
 
 	if (destinationReached && posX == starPosX && posY == starPosy)
 	{
@@ -55,15 +55,18 @@ void StarChaser::sense(Level *level)
 	}
 	else if (destinationReached && posX == shipPosX && posY == shipPosY)
 	{
-		shouldMoveToShip = true;
+		shouldRechargeEnergy = true;
 
-		shouldMoveToStar = false;
-		shouldMoveToTrade = false;
 
-		stepsTaken = 0;
-		path.clear();
-		pathFound = false;
-		destinationReached = false;
+			shouldMoveToStar = false;
+			shouldMoveToStar = false;
+			shouldMoveToTrade = false;
+
+			stepsTaken = 0;
+			path.clear();
+			pathFound = false;
+			destinationReached = false;
+		
 	}
 
 	if (level->starChaserHeldByMouse)
@@ -79,6 +82,20 @@ void StarChaser::sense(Level *level)
 		shouldDeactivate = false;
 	}
 
+	if (energy <= 0)
+	{
+		stepsTaken = 0;
+		path.clear();
+		pathFound = false;
+		destinationReached = false;
+
+		shouldMoveToShip = true;
+		fullyCharged = false;
+
+		shouldMoveToTrade = false;
+		shouldMoveToStar = false;
+		shouldDeactivate = false;
+	}
 
 	if (!shouldDeactivate && !shouldMoveToStar && !shouldMoveToShip && !shouldMoveToTrade)
 	{
@@ -89,14 +106,6 @@ void StarChaser::sense(Level *level)
 	}
 
 
-	if (energy <= 0)
-	{
-		shouldMoveToShip = true;
-
-		shouldMoveToTrade = false;
-		shouldMoveToStar = false;
-		shouldDeactivate = false;
-	}
 }
 
 void StarChaser::decide()
@@ -116,6 +125,10 @@ void StarChaser::decide()
 	if (shouldMoveToTrade)
 	{
 		state = movingToTrade;
+	}
+	if (shouldRechargeEnergy)
+	{
+		state = recharging;
 	}
 }
 			
@@ -152,7 +165,36 @@ void StarChaser::act(Level *level)
 		pathFound = true;
 	}
 
-	if (!path.empty())
+	if (state == recharging)
+	{
+		moveTimer -= GetFrameTime();
+		if (energy < maxEnergy && moveTimer <= 0)
+		{
+			energy += 3;
+			moveTimer = moveTimerReset;
+			fullyCharged = false;
+		}
+		if (energy >= maxEnergy)
+		{
+			energy = maxEnergy;
+			moveTimer = moveTimerReset;
+			fullyCharged = true;
+
+			stepsTaken = 0;
+			path.clear();
+			pathFound = false;
+			destinationReached = false;
+
+			shouldMoveToShip = false;
+
+			shouldMoveToTrade = false;
+			shouldMoveToStar = false;
+			shouldDeactivate = false;
+			state = idle;
+		}
+	}
+
+	if (!path.empty() && state != beingHeld)
 	{
 		if (state == movingToStar)
 		{
@@ -169,9 +211,12 @@ void StarChaser::act(Level *level)
 					destinationReached = true;
 				}
 				Vector2 newPos;
-				newPos.x = path.at(stepsTaken).x + 5.0f;
-				newPos.y = path.at(stepsTaken).y + 5.0f;
-				setPosition(newPos);
+				if (stepsTaken <= path.size() - 1)
+				{
+					newPos.x = path.at(stepsTaken).x + 5.0f;
+					newPos.y = path.at(stepsTaken).y + 5.0f;
+					setPosition(newPos);
+				}
 				energy -= moveEnergyDrain;
 				moveTimer = moveTimerReset;
 			}
@@ -192,9 +237,12 @@ void StarChaser::act(Level *level)
 					destinationReached = true;
 				}
 				Vector2 newPos;
-				newPos.x = path.at(stepsTaken).x + 5.0f;
-				newPos.y = path.at(stepsTaken).y + 5.0f;
-				setPosition(newPos);
+				if (stepsTaken <= path.size() - 1)
+				{
+					newPos.x = path.at(stepsTaken).x + 5.0f;
+					newPos.y = path.at(stepsTaken).y + 5.0f;
+					setPosition(newPos);
+				}
 
 				level->star.setPosition(getPosition()); // move the star with the starChaser
 				
@@ -218,13 +266,18 @@ void StarChaser::act(Level *level)
 					destinationReached = true;
 				}
 				Vector2 newPos;
-				newPos.x = path.at(stepsTaken).x + 5.0f;
-				newPos.y = path.at(stepsTaken).y + 5.0f;
-				setPosition(newPos);
+				if (stepsTaken <= path.size() - 1)
+				{
+					newPos.x = path.at(stepsTaken).x + 5.0f;
+					newPos.y = path.at(stepsTaken).y + 5.0f;
+					setPosition(newPos);
+				}
 
 				moveTimer = moveTimerReset;
 			}
 		}
+
+
 	}
 }
 
@@ -242,4 +295,21 @@ float StarChaser::getEnergy()
 void StarChaser::setTexture(Texture& p_texture)
 {
 	texture = &p_texture;
+}
+
+void StarChaser::rechargeEnergy()
+{
+	moveTimer -= GetFrameTime();
+	if (energy < maxEnergy && moveTimer <= 0)
+	{
+		energy += 3;
+		moveTimer = moveTimerReset;
+		fullyCharged = false;
+	}
+	if (energy >= maxEnergy)
+	{
+		energy = maxEnergy;
+		moveTimer = moveTimerReset;
+		fullyCharged = true;
+	}
 }

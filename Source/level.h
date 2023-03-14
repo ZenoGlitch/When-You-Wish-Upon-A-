@@ -107,6 +107,8 @@ public: // Containers and variables
 
 	bool starChaserHeldByMouse = false;
 	bool starHeldByMouse = false;
+	bool spaceShipHeldByMouse = false;
+	bool tradePostHeldByMouse = false;
 
 
 private: // Containers and variables

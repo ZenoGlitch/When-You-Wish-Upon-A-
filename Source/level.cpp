@@ -60,7 +60,7 @@ void Level::Update()
     }
     else drawingCircle = false;
 
-    if (IsKeyPressed(KEY_ONE))
+    if (IsKeyPressed(KEY_ONE)) // Pick up STARCHASER to move with mouse
     {
         closed_tiles.clear();
         open_tiles.clear();
@@ -68,14 +68,29 @@ void Level::Update()
 
         starChaserHeldByMouse = true;
     }
-
-    if (IsKeyPressed(KEY_TWO))
+    if (IsKeyPressed(KEY_TWO)) // Pick up STAR to move with mouse
     {
         closed_tiles.clear();
         open_tiles.clear();
         starChaser.path.clear();
 
         starHeldByMouse = true;
+    }
+    if (IsKeyPressed(KEY_THREE)) // Pick up SPACESHIP to move with mouse
+    {
+        closed_tiles.clear();
+        open_tiles.clear();
+        starChaser.path.clear();
+
+        spaceShipHeldByMouse = true;
+    }
+    if (IsKeyPressed(KEY_FOUR)) // Pick up TRADEPOST to move with mouse
+    {
+        closed_tiles.clear();
+        open_tiles.clear();
+        starChaser.path.clear();
+
+        tradePostHeldByMouse = true;
     }
 
     if (starChaserHeldByMouse)
@@ -108,6 +123,36 @@ void Level::Update()
         }
     }
 
+    if (spaceShipHeldByMouse)
+    {
+        spaceShip.setPosition(GetMousePosition());
+        if (IsMouseButtonPressed(0))
+        {
+            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
+            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
+            int releasePosX = tilePosX * TileData::size + 5;
+            int releasePosY = tilePosY * TileData::size + 5;
+            Vector2 releasePos = { releasePosX, releasePosY };
+            spaceShip.setPosition(releasePos);
+            spaceShipHeldByMouse = false;
+        }
+    }
+
+    if (tradePostHeldByMouse)
+    {
+        tradePost.setPosition(GetMousePosition());
+        if (IsMouseButtonPressed(0))
+        {
+            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
+            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
+            int releasePosX = tilePosX * TileData::size + 5;
+            int releasePosY = tilePosY * TileData::size + 5;
+            Vector2 releasePos = { releasePosX, releasePosY };
+            tradePost.setPosition(releasePos);
+            tradePostHeldByMouse = false;
+        }
+    }
+
     // Debug controls
     //if (IsKeyPressed(KEY_C) && numberOfSteps >= 0)
     //{
@@ -125,14 +170,12 @@ void Level::Update()
     {
         drawingOpenAndClosedTiles = false;
     }
+    gridManager.Update();
 
     starChaser.sense(this);
     starChaser.decide();
     starChaser.act(this);
 
-    gridManager.Update();
-    
-    
 }
 
 void Level::Draw()
@@ -193,7 +236,7 @@ void Level::Draw()
         DrawLine(closed_tiles.at(i).position.x + TileData::size / 2, closed_tiles.at(i).position.y + TileData::size / 2, closed_tiles.at(i).parentPosition.x + TileData::size / 2, closed_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
     }
 
-    //Draw F, G and H costs for each open tile and draw line from current node to it's parent
+    //Draw F, G and H costs for each open tile and draw line from each open node to it's parent
     for (int i = 0; i < open_tiles.size(); i++)
     {
         //DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
