@@ -7,6 +7,7 @@
 #include "star.h"
 #include "starChaser.h"
 #include "tradingPost.h"
+#include "spaceShip.h"
 
 
 #include <list>
@@ -97,10 +98,12 @@ public: // Containers and variables
 	Star star;
 	TradingPost tradePost;
 	StarChaser starChaser;
+	SpaceShip spaceShip;
 
 	Texture star_texture;
 	Texture tradePost_texture;
 	Texture starChaser_texture;
+	Texture spaceShip_texture;
 
 	bool starChaserHeldByMouse = false;
 	bool starHeldByMouse = false;

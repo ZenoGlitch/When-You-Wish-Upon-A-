@@ -28,6 +28,8 @@ void StarChaser::sense(Level *level)
 	float starPosy = level->star.getPosition().y;
 	float tradePosX = level->tradePost.getPosition().x;
 	float tradePosY = level->tradePost.getPosition().y;
+	float shipPosX = level->tradePost.getPosition().x;
+	float shipPosY = level->tradePost.getPosition().y;
 
 	if (destinationReached && posX == starPosX && posY == starPosy)
 	{
@@ -44,6 +46,18 @@ void StarChaser::sense(Level *level)
 	{
 		shouldMoveToStar = true;
 
+		shouldMoveToTrade = false;
+
+		stepsTaken = 0;
+		path.clear();
+		pathFound = false;
+		destinationReached = false;
+	}
+	else if (destinationReached && posX == shipPosX && posY == shipPosY)
+	{
+		shouldMoveToShip = true;
+
+		shouldMoveToStar = false;
 		shouldMoveToTrade = false;
 
 		stepsTaken = 0;
@@ -104,8 +118,6 @@ void StarChaser::decide()
 		state = movingToTrade;
 	}
 }
-
-
 			
 void StarChaser::act(Level *level)
 {
@@ -123,6 +135,16 @@ void StarChaser::act(Level *level)
 	if (state == movingToTrade && !pathFound)
 	{
 		path = level->pathfind(getPosition(), level->tradePost.getPosition(), level->numberOfSteps);
+		if (path.empty())
+		{
+			assert(false);
+		}
+		pathFound = true;
+	}
+
+	if (state == movingToShip && !pathFound)
+	{
+		path = level->pathfind(getPosition(), level->spaceShip.getPosition(), level->numberOfSteps);
 		if (path.empty())
 		{
 			assert(false);
@@ -177,6 +199,29 @@ void StarChaser::act(Level *level)
 				level->star.setPosition(getPosition()); // move the star with the starChaser
 				
 				energy -= moveEnergyDrain;
+				moveTimer = moveTimerReset;
+			}
+		}
+
+		if (state == movingToShip)
+		{
+			moveTimer -= GetFrameTime();
+
+			if (moveTimer <= 0 && !destinationReached)
+			{
+				if (stepsTaken < path.size() - 1)
+				{
+					stepsTaken += 1;
+				}
+				if (stepsTaken == path.size() - 1)
+				{
+					destinationReached = true;
+				}
+				Vector2 newPos;
+				newPos.x = path.at(stepsTaken).x + 5.0f;
+				newPos.y = path.at(stepsTaken).y + 5.0f;
+				setPosition(newPos);
+
 				moveTimer = moveTimerReset;
 			}
 		}

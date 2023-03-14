@@ -151,6 +151,7 @@ void Level::Draw()
 
     tradePost.draw(this);
     star.draw(this);
+    spaceShip.draw(this);
     starChaser.draw(this);
 
     //Vector2 starChaserOrigin = { starChaser.getPosition().x - 5 + TileData::size / 2, starChaser.getPosition().y - 5 + TileData::size / 2 };
@@ -577,6 +578,7 @@ void Level::load_textures()
     star_texture = LoadTexture("assets/star2.png");
     tradePost_texture = LoadTexture("assets/tradePost.png");
     starChaser_texture = LoadTexture("assets/starChaser.png");
+    spaceShip_texture = LoadTexture("assets/spaceShip.png");
 }
 
 void Level::unload_textures()
@@ -584,6 +586,7 @@ void Level::unload_textures()
     UnloadTexture(star_texture);
     UnloadTexture(tradePost_texture);
     UnloadTexture(starChaser_texture);
+    UnloadTexture(spaceShip_texture);
 }
 
 void Level::set_texures()
@@ -591,6 +594,7 @@ void Level::set_texures()
     star.setTexture(star_texture);
     tradePost.setTexture(tradePost_texture);
     starChaser.setTexture(starChaser_texture);
+    spaceShip.setTexture(spaceShip_texture);
 }
 
 Vector2 Level::PositionOnRandomTile()
@@ -625,7 +629,7 @@ Vector2 Level::PositionOnRandomTile()
 void Level::set_spawn_positions()
 {
     // Set STAR start position
-    bool starStartTtileIsValid = true;
+    //bool starStartTtileIsValid = true;
     Vector2 starSpawnPos = PositionOnRandomTile();
     //if (gridManager.GetTile(starSpawnPos.x / TileData::size, starSpawnPos.y / TileData::size) == Rock)
     //{
@@ -677,6 +681,24 @@ void Level::set_spawn_positions()
     else
     {
         starChaser.setPosition(starChaserSpawnPos);
+    }
+
+    // Set SPACESHIP start position
+    bool spaceShipStartTileIsVaild = true;
+    Vector2 spaceShipSpawnPos = PositionOnRandomTile();
+    if (spaceShipSpawnPos.x == starChaserSpawnPos.x && spaceShipSpawnPos.y == starChaserSpawnPos.y 
+        || spaceShipSpawnPos.x == starSpawnPos.x && spaceShipSpawnPos.y == starSpawnPos.y
+        || spaceShipSpawnPos.x == tradePostSpawnPos.x && spaceShipSpawnPos.y == tradePostSpawnPos.y)
+    {
+        spaceShipStartTileIsVaild = false;
+    }
+    if (!spaceShipStartTileIsVaild)
+    {
+        spaceShipSpawnPos = PositionOnRandomTile();
+    }
+    else
+    {
+        spaceShip.setPosition(spaceShipSpawnPos);
     }
 
     //starChaser = StarChaser(&starChaser_texture, star.getPosition());
