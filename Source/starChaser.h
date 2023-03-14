@@ -41,8 +41,8 @@ private:
 	enum State
 	{
 		energyLow, 
-		lookingForStar, 
-		isCarrying, 
+		//lookingForStar, 
+		//isCarrying, 
 		movingToStar, 
 		movingToTrade, 
 		movingToShip, 
@@ -58,8 +58,18 @@ private:
 	const int maxEnergy = 15;
 	int energy;
 
+	int stepsTaken = 0;
+
 	const float moveTimerReset = 1.0f;
 	float moveTimer = moveTimerReset;
 	bool pathFound = false;
+
+	bool shouldMoveToStar = true;
+	//bool shouldCarryStar = false;
+	bool shouldMoveToTrade = false;
+	bool shouldMoveToShip = false;
+
+	bool shouldDeactivate = false;
+
 
 };

@@ -19,6 +19,9 @@ void StarChaser::initialize()
 
 	state = idle;
 	energy = maxEnergy;
+	shouldMoveToStar = true;
+	//shouldCarryStar = false;
+	shouldMoveToTrade = false;
 }
 
 void StarChaser::sense(Level *level)
@@ -33,41 +36,73 @@ void StarChaser::sense(Level *level)
 	if (destinationReached && posX == starPosX && posY == starPosy)
 	{
 		/*sensing = isCarrying;*/
-		state = isCarrying;
+		/*state = isCarrying;*/
+		//shouldCarryStar = true;
+		shouldMoveToTrade = true;
+		shouldMoveToStar = false;
+		
+		stepsTaken = 0;
 		path.clear();
 		pathFound = false;
+		destinationReached = false;
 	}
 	else if (destinationReached && posX == tradePosX && posY == tradePosY)
 	{
 		/*sensing = idle;*/
-		state = idle;
+		/*state = idle;*/
+		shouldMoveToStar = true;
+		//shouldCarryStar = false;
+		shouldMoveToTrade = false;
+
+		stepsTaken = 0;
 		path.clear();
 		pathFound = false;
+		destinationReached = false;
 	}
 
 	if (level->starChaserHeldByMouse)
 	{
 		/*sensing = beingHeld;*/
-		state = beingHeld;
+		/*state = beingHeld;*/
+		shouldDeactivate = true;
+
+		//shouldCarryStar = false;
+		shouldMoveToStar = false;
+		shouldMoveToTrade = false;
 		pathFound = false;
 	}
-	if (/*sensing == beingHeld*/ state == beingHeld && !level->starChaserHeldByMouse)
+	if (!level->starChaserHeldByMouse)
 	{
 		/*sensing = idle;*/
-		state = idle;
+		/*state = idle;*/
+		shouldDeactivate = false;
 	}
 
-	if (/*sensing == idle*/ state == idle && posX != starPosX && posY != starPosy)
+	//if (/*sensing == idle*/ state == idle && posX != starPosX && posY != starPosy)
+	//{
+	//	/*sensing = lookingForStar;*/
+	//	/*state = lookingForStar;*/
+
+	//}
+
+	if (/*!shouldCarryStar &&*/ !shouldDeactivate && !shouldMoveToStar && !shouldMoveToShip && !shouldMoveToTrade)
 	{
-		/*sensing = lookingForStar;*/
-		state = lookingForStar;
+		if (posX != level->star.getPosition().x && posY != level->star.getPosition().y)
+		{
+			shouldMoveToStar = true;
+		}
 	}
 
 
 	if (energy <= 0)
 	{
 		/*sensing = energyLow;*/
-		state = energyLow;
+		shouldMoveToShip = true;
+		//shouldCarryStar = false;
+		shouldMoveToTrade = false;
+		shouldMoveToStar = false;
+		shouldDeactivate = false;
+
 	}
 
 
@@ -95,25 +130,43 @@ void StarChaser::decide()
 	//	/*decision = undecided;*/
 	//	state = undecided; // hmm
 	//}
-
 	//if (sensing == lookingForStar)
 	//{
 	//	decision = movingToStar;
 	//}
-
 	//if (sensing == isCarrying)
 	//{
 	//	decision = movingToTrade;
 	//}
-
 	//if (sensing == energyLow)
 	//{
 	//	decision = movingToShip;
 	//}
+
+	if (shouldDeactivate)
+	{
+		state = beingHeld;
+	}
+	if (shouldMoveToShip)
+	{
+		state = movingToShip;
+	}
+	if (shouldMoveToStar)
+	{
+		state = movingToStar;
+	}
+	//if (shouldCarryStar)
+	//{
+	//	state = isCarrying;
+	//}
+	if (shouldMoveToTrade)
+	{
+		state = movingToTrade;
+	}
 }
 
 
-			int it = 0;
+			
 void StarChaser::act(Level *level)
 {
 	const float moveEnergyDrain = 1.0f;
@@ -127,7 +180,7 @@ void StarChaser::act(Level *level)
 		pathFound = true;
 	}
 
-	if (/*sensing == isCarrying*/ state == isCarrying && !pathFound)
+	if (/*sensing == isCarrying*/ state == movingToTrade && !pathFound)
 	{
 		path = level->pathfind(getPosition(), level->tradePost.getPosition(), level->numberOfSteps);
 		if (path.empty())
@@ -146,26 +199,59 @@ void StarChaser::act(Level *level)
 	{
 		/*if (decision == movingToStar)
 		{*/
+
+		if (state == movingToStar)
+		{
 			moveTimer -= GetFrameTime();
 
 			if (moveTimer <= 0 && !destinationReached)
 			{
-				if (it < path.size() - 1)
+				if (stepsTaken < path.size() - 1)
 				{
-					it += 1;
+					stepsTaken += 1;
 				}
-				if (it == path.size() - 1)
+				if (stepsTaken == path.size() - 1)
 				{
 					destinationReached = true;
 				}
-				setPosition(path.at(it));
-				if (/*sensing == isCarrying*/ state == isCarrying)
-				{
-					level->star.setPosition(getPosition());
-				}
+				Vector2 newPos;
+				newPos.x = path.at(stepsTaken).x + 5.0f;
+				newPos.y = path.at(stepsTaken).y + 5.0f;
+				setPosition(newPos);
+				//if (/*sensing == isCarrying*/ state == isCarrying)
+				//{
+				//	level->star.setPosition(getPosition());
+				//}
 				energy -= moveEnergyDrain;
 				moveTimer = moveTimerReset;
 			}
+		}
+
+		if (state == movingToTrade)
+		{
+			moveTimer -= GetFrameTime();
+
+			if (moveTimer <= 0 && !destinationReached)
+			{
+				if (stepsTaken < path.size() - 1)
+				{
+					stepsTaken += 1;
+				}
+				if (stepsTaken == path.size() - 1)
+				{
+					destinationReached = true;
+				}
+				Vector2 newPos;
+				newPos.x = path.at(stepsTaken).x + 5.0f;
+				newPos.y = path.at(stepsTaken).y + 5.0f;
+				setPosition(newPos);
+
+				level->star.setPosition(getPosition());
+				
+				energy -= moveEnergyDrain;
+				moveTimer = moveTimerReset;
+			}
+		}
 		/*}*/
 	}
 }
