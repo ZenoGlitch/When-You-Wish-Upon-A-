@@ -28,21 +28,9 @@ public:
 
 private:
 
-	//enum Sense
-	//{
-	//	energyLow, lookingForStar, isCarrying, idle, beingHeld
-	//} sensing = idle;
-
-	//enum Decide
-	//{
-	//	movingToStar, movingToTrade, movingToShip, undecided
-	//} decision = undecided;
-
 	enum State
 	{
 		energyLow, 
-		//lookingForStar, 
-		//isCarrying, 
 		movingToStar, 
 		movingToTrade, 
 		movingToShip, 
@@ -65,7 +53,6 @@ private:
 	bool pathFound = false;
 
 	bool shouldMoveToStar = true;
-	//bool shouldCarryStar = false;
 	bool shouldMoveToTrade = false;
 	bool shouldMoveToShip = false;
 
