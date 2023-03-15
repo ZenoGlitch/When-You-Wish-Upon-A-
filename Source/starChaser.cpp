@@ -69,13 +69,19 @@ void StarChaser::sense(Level *level)
 		
 	}
 
-	if (level->starChaserHeldByMouse)
+	if (level->starChaserHeldByMouse || level->starHeldByMouse || level->tradePostHeldByMouse || level->spaceShipHeldByMouse)
 	{
 		shouldDeactivate = true;
 
 		shouldMoveToStar = false;
 		shouldMoveToTrade = false;
+		shouldMoveToShip = false;
+		shouldRechargeEnergy = false;
+
+		stepsTaken = 0;
+		path.clear();
 		pathFound = false;
+		destinationReached = false;
 	}
 	if (!level->starChaserHeldByMouse)
 	{
@@ -97,7 +103,7 @@ void StarChaser::sense(Level *level)
 		shouldDeactivate = false;
 	}
 
-	if (!shouldDeactivate && !shouldMoveToStar && !shouldMoveToShip && !shouldMoveToTrade)
+	if (!shouldDeactivate && !shouldMoveToStar && !shouldMoveToShip && !shouldMoveToTrade && !shouldRechargeEnergy)
 	{
 		if (posX != level->star.getPosition().x && posY != level->star.getPosition().y)
 		{
@@ -165,7 +171,7 @@ void StarChaser::act(Level *level)
 		pathFound = true;
 	}
 
-	if (state == recharging)
+	if (state == recharging && !level->spaceShipHeldByMouse)
 	{
 		moveTimer -= GetFrameTime();
 		if (energy < maxEnergy && moveTimer <= 0)

@@ -37,7 +37,7 @@ void Level::input()
     else drawControlScheme = false;
 
     // Cycle tile type when tile is clicked
-    if (IsMouseButtonPressed(0) && !starChaserHeldByMouse)
+    if (IsMouseButtonPressed(0))
     {
         drawingCircle = true;
 
@@ -47,8 +47,17 @@ void Level::input()
         TileType& tile = gridManager.GetTile(mousePosX, mousePosY);
 
         //TileData tileData = gridManager.grid.tileData.at(tile);
-
-        tile = gridManager.grid.CycleTileTypes(tile);
+        if ( (tile == Rock && starChaserHeldByMouse) 
+          || (tile == Rock && starHeldByMouse) 
+          || (tile == Rock && tradePostHeldByMouse)
+          || (tile == Rock && spaceShipHeldByMouse) )
+        {
+            tile = gridManager.grid.CycleTileTypes(tile);
+        }
+        if (!starChaserHeldByMouse && !starHeldByMouse && !tradePostHeldByMouse && !spaceShipHeldByMouse)
+        {
+            tile = gridManager.grid.CycleTileTypes(tile);
+        }
 
         delay = 2.0f;
     }
@@ -202,11 +211,6 @@ void Level::Draw()
     spaceShip.draw(this);
     starChaser.draw(this);
 
-    //Vector2 starChaserOrigin = { starChaser.getPosition().x - 5 + TileData::size / 2, starChaser.getPosition().y - 5 + TileData::size / 2 };
-    //Vector2 starOrigin = { star.getPosition().x - 5 + TileData::size / 2, star.getPosition().y - 5 + TileData::size / 2 };
-
-    //pathfind(starChaser.getPosition(), star.getPosition());
-
     if (drawingOpenAndClosedTiles)
     {
         if (open_tiles.size() > 0)
@@ -232,7 +236,7 @@ void Level::Draw()
     }
 
     // Drawing debugging stuff in the commented out sections below
-
+    {
         // Draw F, G and H costs for each closed tile and draw line from current node to it's parent
         
             //for (int i = 0; i < closed_tiles.size(); i++) // Draw the F, G and H costs for each closed tile
@@ -253,6 +257,12 @@ void Level::Draw()
             //    DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
             //}
 
+        // Display amount of open and closed tiles in text
+        
+        //DrawText(TextFormat("Open tiles:   %i", (int)open_tiles.size()), 10, GetScreenHeight() - 50, 30, BLACK); // Draw number of open tiles on screen
+        //DrawText(TextFormat("Closed tiles:   %i", (int)closed_tiles.size()), 10, GetScreenHeight() - 80, 30, BLACK); // Draw number of closed tiles on screen
+    }
+
     if (starChaser.path.size() > 0)
     {
         for (int i = 0; i < starChaser.path.size() - 1; i++) // Draw the resulting path selected by A*
@@ -263,10 +273,6 @@ void Level::Draw()
                      (int)starChaser.path.at(i + 1).y + tileSize / 2, RED);
         }
     }
-
-    // testing
-    DrawText(TextFormat("Open tiles:   %i", (int)open_tiles.size()), 10, GetScreenHeight() - 50, 30, BLACK); // Draw number of open tiles on screen
-    DrawText(TextFormat("Closed tiles:   %i", (int)closed_tiles.size()), 10, GetScreenHeight() - 80, 30, BLACK); // Draw number of closed tiles on screen
 
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
@@ -302,15 +308,6 @@ void Level::Reset()
     pending_agents.clear();
 
     // Spawn agents
-    //for (int i = 0; i < 10; i++)
-    //{
-    //    SpawnAgent(Sheep());
-    //}
-    
-    //for (int i = 0; i < 1; i++)
-    //{
-    //    SpawnAgent("star");
-    //}
 
 }
 
@@ -328,51 +325,7 @@ Agent* Level::SpawnAgent(std::string agentType)
 {
     Agent* result = nullptr;
 
-    //if (agentType == "star")
-    //{
-    //    Star agent(star_texture);
-    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), 10 };
-    //    agent.setPosition(randPos);
-    //    star_agents.push_back(agent);
-    //    result = &star_agents.back();
-    //}
-    if (agentType == "StarChaser")
-    {
-        StarChaser agent;
-        Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
-        TileType spawnTileType = gridManager.GetTile((int)(randPos.x / tileSize), (int)(randPos.y / tileSize));
-        Vector2 spawnPos;
-        spawnPos.x = randPos.x + tileSize / 2;
-        spawnPos.y = randPos.y + tileSize / 2;
-        agent.setPosition(spawnPos);
-        starChaser_agents.push_back(agent);
-        result = &starChaser_agents.back();
-    }
-    //else if (agentType == "tradingPost")
-    //{
-    //    TradingPost agent;
-    //    Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
-    //    Tile spawnTile = gridManager.GetTile((int)(randPos.x / 96), (int)(randPos.y / 54));
-//    Vector2 spawnPos = spawnTile.position;
-//    spawnPos.x = spawnTile.position.x + spawnTile.width / 2;
-//    spawnPos.y = spawnTile.position.y + spawnTile.height / 2;
-//    agent.setPosition(spawnPos);
-//    tradingPost_agents.push_back(agent);
-//    result = &tradingPost_agents.back();
-//}
-//else
-//{
-//    return nullptr;
-//}
-
-//Vector2 randPosition = { (float)(rand() % GetScreenWidth()), (float)(rand() % GetScreenHeight()) };
-//agent.setPosition(randPosition);
-//sheep_agents.push_back(agent);
-//result = &sheep_agents.back();
-
-//pending_agents.push_back(result); // Enqueue it so that it can be added to the level at the beginning of the next frame
-
-return result;
+    return result;
 }
 
 int Level::getId(Agent* agent)
