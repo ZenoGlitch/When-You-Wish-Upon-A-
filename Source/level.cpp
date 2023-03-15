@@ -36,6 +36,8 @@ void Level::Update()
     timef += GetFrameTime();
     delay -= GetFrameTime();
 
+    const int tileSize = TileData::size;
+
     if (IsKeyDown(KEY_TAB))
     {
         drawControlScheme = true;
@@ -47,8 +49,8 @@ void Level::Update()
     {
         drawingCircle = true;
 
-        int mousePosX = (int)floor(GetMousePosition().x / TileData::size);
-        int mousePosY = (int)floor(GetMousePosition().y / TileData::size);
+        int mousePosX = (int)floor(GetMousePosition().x / tileSize);
+        int mousePosY = (int)floor(GetMousePosition().y / tileSize);
 
         TileType &tile = gridManager.GetTile(mousePosX, mousePosY);
 
@@ -98,10 +100,10 @@ void Level::Update()
         starChaser.setPosition(GetMousePosition());
         if (IsMouseButtonPressed(0))
         {
-            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
-            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
-            int releasePosX = tilePosX * TileData::size + 5;
-            int releasePosY = tilePosY * TileData::size + 5;
+            int tilePosX = (int)floor(GetMousePosition().x / tileSize);
+            int tilePosY = (int)floor(GetMousePosition().y / tileSize);
+            int releasePosX = tilePosX * tileSize + 5;
+            int releasePosY = tilePosY * tileSize + 5;
             Vector2 releasePos = { releasePosX, releasePosY };
             starChaser.setPosition(releasePos);
             starChaserHeldByMouse = false;
@@ -113,10 +115,10 @@ void Level::Update()
         star.setPosition(GetMousePosition());
         if (IsMouseButtonPressed(0))
         {
-            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
-            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
-            int releasePosX = tilePosX * TileData::size + 5;
-            int releasePosY = tilePosY * TileData::size + 5;
+            int tilePosX = (int)floor(GetMousePosition().x / tileSize);
+            int tilePosY = (int)floor(GetMousePosition().y / tileSize);
+            int releasePosX = tilePosX * tileSize + 5;
+            int releasePosY = tilePosY * tileSize + 5;
             Vector2 releasePos = { releasePosX, releasePosY };
             star.setPosition(releasePos);
             starHeldByMouse = false;
@@ -128,10 +130,10 @@ void Level::Update()
         spaceShip.setPosition(GetMousePosition());
         if (IsMouseButtonPressed(0))
         {
-            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
-            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
-            int releasePosX = tilePosX * TileData::size + 5;
-            int releasePosY = tilePosY * TileData::size + 5;
+            int tilePosX = (int)floor(GetMousePosition().x / tileSize);
+            int tilePosY = (int)floor(GetMousePosition().y / tileSize);
+            int releasePosX = tilePosX * tileSize + 5;
+            int releasePosY = tilePosY * tileSize + 5;
             Vector2 releasePos = { releasePosX, releasePosY };
             spaceShip.setPosition(releasePos);
             spaceShipHeldByMouse = false;
@@ -143,10 +145,10 @@ void Level::Update()
         tradePost.setPosition(GetMousePosition());
         if (IsMouseButtonPressed(0))
         {
-            int tilePosX = (int)floor(GetMousePosition().x / TileData::size);
-            int tilePosY = (int)floor(GetMousePosition().y / TileData::size);
-            int releasePosX = tilePosX * TileData::size + 5;
-            int releasePosY = tilePosY * TileData::size + 5;
+            int tilePosX = (int)floor(GetMousePosition().x / tileSize);
+            int tilePosY = (int)floor(GetMousePosition().y / tileSize);
+            int releasePosX = tilePosX * tileSize + 5;
+            int releasePosY = tilePosY * tileSize + 5;
             Vector2 releasePos = { releasePosX, releasePosY };
             tradePost.setPosition(releasePos);
             tradePostHeldByMouse = false;
@@ -175,6 +177,9 @@ void Level::Update()
     starChaser.sense(this);
     starChaser.decide();
     starChaser.act(this);
+    star.sense(this);
+    star.decide();
+    star.act(this);
 
 }
 
@@ -262,6 +267,7 @@ void Level::Draw()
 
 
     DrawText(TextFormat("Time: %f", timef), 10, 10, 30, BLACK);
+    DrawText(TextFormat("Stars Collected: %i", starsCollected), 10, 50, 30, YELLOW);
 
     if (drawControlScheme)
     {

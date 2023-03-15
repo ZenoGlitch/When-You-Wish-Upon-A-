@@ -11,30 +11,34 @@ Star::Star(Level *level)
 
 void Star::sense(Level* level)
 {
-	// is there already stars spawned?
-	//if (level->star_agents.size() < 3)
-	//{
-	//	areThereEnoughStars = true;
-	//}
-	//else areThereEnoughStars = false;
+	float posX = getPosition().x;
+	float posY = getPosition().y;
+	float tradePosX = level->tradePost.getPosition().x;
+	float tradePosY = level->tradePost.getPosition().y;
 
+	if (posX == tradePosX && posY == tradePosY)
+	{
+		shouldRespawn = true;
+	}
 }
 
 void Star::decide()
 {
-	//if (areThereEnoughStars)
-	//{
-	//	decision = shouldSpawn;
-	//}
-	//else decision = idle;
+	if (shouldRespawn)
+	{
+		decision = respawn;
+	}
 }
 
 void Star::act(Level* level)
 {
-	//if (decision == shouldSpawn)
-	//{
-	//	level->SpawnAgent("star");
-	//}
+	if (decision == respawn)
+	{
+		setPosition(level->PositionOnRandomTile());
+		level->starsCollected += 1;
+		shouldRespawn = false;
+		decision = idle;
+	}
 }
 
 void Star::draw(Level* level)

@@ -134,7 +134,7 @@ void StarChaser::decide()
 			
 void StarChaser::act(Level *level)
 {
-	const float moveEnergyDrain = 1.0f;
+	const int moveEnergyDrain = 1;
 	if (state == movingToStar && !pathFound)
 	{
 		path = level->pathfind(getPosition(), level->star.getPosition(), level->numberOfSteps);
@@ -176,6 +176,7 @@ void StarChaser::act(Level *level)
 		}
 		if (energy >= maxEnergy)
 		{
+			shouldRechargeEnergy = false;
 			energy = maxEnergy;
 			moveTimer = moveTimerReset;
 			fullyCharged = true;
@@ -185,12 +186,12 @@ void StarChaser::act(Level *level)
 			pathFound = false;
 			destinationReached = false;
 
-			shouldMoveToShip = false;
+			shouldMoveToStar = true;
 
 			shouldMoveToTrade = false;
-			shouldMoveToStar = false;
+			shouldMoveToShip = false;
 			shouldDeactivate = false;
-			state = idle;
+			//state = idle;
 		}
 	}
 

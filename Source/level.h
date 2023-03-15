@@ -40,6 +40,7 @@ public: // Functions
 	std::vector<Vector2> pathfind(Vector2 start, Vector2 end, int maxSteps);
 	std::vector<Vector2> retracePath(Vector2 startTile, Vector2 endTile, int index);
 
+	Vector2 PositionOnRandomTile();
 	bool isDestinationValid(Vector2 p_destination_position);
 
 private: // Functions
@@ -50,7 +51,6 @@ private: // Functions
 	void load_textures();
 	void set_texures();
 
-	Vector2 PositionOnRandomTile();
 	void set_spawn_positions();
 
 	/*void SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize);*/
@@ -109,6 +109,8 @@ public: // Containers and variables
 	bool starHeldByMouse = false;
 	bool spaceShipHeldByMouse = false;
 	bool tradePostHeldByMouse = false;
+
+	int starsCollected = 0;
 
 
 private: // Containers and variables

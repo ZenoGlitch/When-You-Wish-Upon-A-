@@ -27,10 +27,11 @@ private:
 
 	enum Decision
 	{
-		shouldSpawn, idle
+		respawn, idle
 	} decision = idle;
 
 	float energy = 50.0f;
 	bool beingCarried = false;
+	bool shouldRespawn = false;
 
 };
