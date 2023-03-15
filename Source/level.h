@@ -45,6 +45,8 @@ public: // Functions
 
 private: // Functions
 
+	void input();
+
 	void remove_dead_and_add_pending_agents();
 	// Remember, if you add more lists (see @AddMoreHere), edit this function so that dead agents are removed correctly without leaking memory
 
@@ -124,5 +126,7 @@ private: // Containers and variables
 	bool drawControlScheme = false;
 
 	float delay = 2.0f;
+
+	const int tileSize = TileData::size;
 
 };

@@ -168,9 +168,6 @@
     <ClCompile Include="Source\spaceShip.cpp" />
     <ClCompile Include="Source\star.cpp" />
     <ClCompile Include="Source\starChaser.cpp" />
-    <ClCompile Include="Source\tile.cpp" />
-    <ClCompile Include="Source\tileManager.cpp" />
-    <ClCompile Include="Source\tileMap.cpp" />
     <ClCompile Include="Source\tradingPost.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -181,9 +178,6 @@
     <ClInclude Include="Source\spaceShip.h" />
     <ClInclude Include="Source\star.h" />
     <ClInclude Include="Source\starChaser.h" />
-    <ClInclude Include="Source\tile.h" />
-    <ClInclude Include="Source\tileManager.h" />
-    <ClInclude Include="Source\tileMap.h" />
     <ClInclude Include="Source\tradingPost.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

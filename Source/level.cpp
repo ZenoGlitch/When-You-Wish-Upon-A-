@@ -28,16 +28,8 @@ void Level::Initialize()
     starChaser.initialize();
 }
 
-void Level::Update()
+void Level::input()
 {
-    remove_dead_and_add_pending_agents();
-
-    frameCounter++;
-    timef += GetFrameTime();
-    delay -= GetFrameTime();
-
-    const int tileSize = TileData::size;
-
     if (IsKeyDown(KEY_TAB))
     {
         drawControlScheme = true;
@@ -52,7 +44,7 @@ void Level::Update()
         int mousePosX = (int)floor(GetMousePosition().x / tileSize);
         int mousePosY = (int)floor(GetMousePosition().y / tileSize);
 
-        TileType &tile = gridManager.GetTile(mousePosX, mousePosY);
+        TileType& tile = gridManager.GetTile(mousePosX, mousePosY);
 
         //TileData tileData = gridManager.grid.tileData.at(tile);
 
@@ -94,6 +86,36 @@ void Level::Update()
 
         tradePostHeldByMouse = true;
     }
+
+    // Debug controls below
+
+    //if (IsKeyPressed(KEY_C) && numberOfSteps >= 0)
+    //{
+    //    numberOfSteps -= 1;
+    //}
+    //if (IsKeyPressed(KEY_V))
+    //{
+    //    numberOfSteps += 1;
+    //}
+    //if (IsKeyPressed(KEY_B))
+    //{
+    //    drawingOpenAndClosedTiles = true;
+    //}
+    //if (IsKeyReleased(KEY_B))
+    //{
+    //    drawingOpenAndClosedTiles = false;
+    //}
+}
+
+void Level::Update()
+{
+    remove_dead_and_add_pending_agents();
+
+    frameCounter++;
+    timef += GetFrameTime();
+    delay -= GetFrameTime();
+
+    input();
 
     if (starChaserHeldByMouse)
     {
@@ -155,23 +177,6 @@ void Level::Update()
         }
     }
 
-    // Debug controls
-    //if (IsKeyPressed(KEY_C) && numberOfSteps >= 0)
-    //{
-    //    numberOfSteps -= 1;
-    //}
-    //if (IsKeyPressed(KEY_V))
-    //{
-    //    numberOfSteps += 1;
-    //}
-    if (IsKeyPressed(KEY_B))
-    {
-        drawingOpenAndClosedTiles = true;
-    }
-    if (IsKeyReleased(KEY_B))
-    {
-        drawingOpenAndClosedTiles = false;
-    }
     gridManager.Update();
 
     starChaser.sense(this);
@@ -186,11 +191,6 @@ void Level::Update()
 void Level::Draw()
 {
     gridManager.Draw();
-
-    //for (auto&& grass : grass_agents)
-    //{
-    //    grass.draw();
-    //}
 
     if (drawingCircle)
     {
@@ -215,7 +215,7 @@ void Level::Draw()
             { 
                 Color transparentBlue = { 0, 121, 241, 100 };
                 Vector2 pos = open_tiles.at(i).position;
-                DrawRectangle((int)pos.x, (int)pos.y, TileData::size, TileData::size, transparentBlue);
+                DrawRectangle((int)pos.x, (int)pos.y, tileSize, tileSize, transparentBlue);
             }    
         }
 
@@ -226,38 +226,41 @@ void Level::Draw()
                 Color transparentRed = { 230, 41, 55, 100 };
 
                 Vector2 pos = closed_tiles.at(i).position;
-                DrawRectangle((int)pos.x, (int)pos.y, TileData::size, TileData::size, transparentRed);
+                DrawRectangle((int)pos.x, (int)pos.y, tileSize, tileSize, transparentRed);
             }
         }
     }
 
+    // Drawing debugging stuff in the commented out sections below
 
-    // Draw F, G and H costs for each closed tile and draw line from current node to it's parent
-    for (int i = 0; i < closed_tiles.size(); i++) // Draw the F, G and H costs for each closed tile
-    {
-        //DrawText(TextFormat("F: %i", closed_tiles.at(i).costF()), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y, 15, BLACK);
-        ////DrawText(TextFormat("G: %i", closed_tiles.at(i).costG), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 15, 15, RED);
-        //DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
-        DrawLine(closed_tiles.at(i).position.x + TileData::size / 2, closed_tiles.at(i).position.y + TileData::size / 2, closed_tiles.at(i).parentPosition.x + TileData::size / 2, closed_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
-    }
+        // Draw F, G and H costs for each closed tile and draw line from current node to it's parent
+        
+            //for (int i = 0; i < closed_tiles.size(); i++) // Draw the F, G and H costs for each closed tile
+            //{
+            //    DrawText(TextFormat("F: %i", closed_tiles.at(i).costF()), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y, 15, BLACK);
+            //    //DrawText(TextFormat("G: %i", closed_tiles.at(i).costG), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 15, 15, RED);
+            //    DrawText(TextFormat("H: %i", closed_tiles.at(i).costH), closed_tiles.at(i).position.x, closed_tiles.at(i).position.y + 30, 15, DARKBLUE);
+            //    DrawLine(closed_tiles.at(i).position.x + tileSize / 2, closed_tiles.at(i).position.y + tileSize / 2, closed_tiles.at(i).parentPosition.x + tileSize / 2, closed_tiles.at(i).parentPosition.y + tileSize / 2, YELLOW);
+            //}
 
-    //Draw F, G and H costs for each open tile and draw line from each open node to it's parent
-    for (int i = 0; i < open_tiles.size(); i++)
-    {
-        //DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
-        ////DrawText(TextFormat("G: %i", open_tiles.at(i).costG),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 15, 15, RED);
-        //DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
-        DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
-    }
+        //Draw F, G and H costs for each open tile and draw line from each open node to it's parent
+        
+            //for (int i = 0; i < open_tiles.size(); i++)
+            //{
+            //    DrawText(TextFormat("F: %i", open_tiles.at(i).costF()), open_tiles.at(i).position.x, open_tiles.at(i).position.y, 15, BLACK);
+            //    //DrawText(TextFormat("G: %i", open_tiles.at(i).costG),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 15, 15, RED);
+            //    DrawText(TextFormat("H: %i", open_tiles.at(i).costH),   open_tiles.at(i).position.x, open_tiles.at(i).position.y + 30, 15, DARKBLUE);
+            //    DrawLine(open_tiles.at(i).position.x + TileData::size / 2, open_tiles.at(i).position.y + TileData::size / 2, open_tiles.at(i).parentPosition.x + TileData::size / 2, open_tiles.at(i).parentPosition.y + TileData::size / 2, YELLOW);
+            //}
 
     if (starChaser.path.size() > 0)
     {
         for (int i = 0; i < starChaser.path.size() - 1; i++) // Draw the resulting path selected by A*
         {
-            DrawLine((int)starChaser.path.at(i).x + TileData::size / 2,
-                     (int)starChaser.path.at(i).y + TileData::size / 2,
-                     (int)starChaser.path.at(i + 1).x + TileData::size / 2,
-                     (int)starChaser.path.at(i + 1).y + TileData::size / 2, RED);
+            DrawLine((int)starChaser.path.at(i).x + tileSize / 2,
+                     (int)starChaser.path.at(i).y + tileSize / 2,
+                     (int)starChaser.path.at(i + 1).x + tileSize / 2,
+                     (int)starChaser.path.at(i + 1).y + tileSize / 2, RED);
         }
     }
 
@@ -337,10 +340,10 @@ Agent* Level::SpawnAgent(std::string agentType)
     {
         StarChaser agent;
         Vector2 randPos = { (float)(rand() & GetScreenWidth()), (float)(rand() & GetScreenHeight()) };
-        TileType spawnTileType = gridManager.GetTile((int)(randPos.x / TileData::size), (int)(randPos.y / TileData::size));
+        TileType spawnTileType = gridManager.GetTile((int)(randPos.x / tileSize), (int)(randPos.y / tileSize));
         Vector2 spawnPos;
-        spawnPos.x = randPos.x + TileData::size / 2;
-        spawnPos.y = randPos.y + TileData::size / 2;
+        spawnPos.x = randPos.x + tileSize / 2;
+        spawnPos.y = randPos.y + tileSize / 2;
         agent.setPosition(spawnPos);
         starChaser_agents.push_back(agent);
         result = &starChaser_agents.back();
@@ -395,8 +398,8 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
     Vector2 startTilePos = { start.x - offset, start.y - offset };
     Vector2 endTilePos = { end.x - offset, end.y - offset };
 
-    int tileSize = TileData::size;
-    int tileHalfSize = TileData::size / 2;
+
+    int tileHalfSize = tileSize / 2;
 
     Vector2 startTileOriginPos = { startTilePos.x + tileHalfSize, startTilePos.y + tileHalfSize };
     Vector2 startTileIndex = { (start.x - offset) / tileSize, (start.y - offset) / tileSize };
