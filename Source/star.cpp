@@ -2,7 +2,6 @@
 
 #include "level.h"
 
-
 Star::Star(Level *level)
 	: texture(&level->star_texture)
 {

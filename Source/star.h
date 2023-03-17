@@ -2,8 +2,6 @@
 
 #include "agent.h"
 
-//class Level;
-
 class Star : public Agent
 {
 public:

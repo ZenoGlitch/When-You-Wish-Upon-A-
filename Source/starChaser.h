@@ -9,7 +9,6 @@ class StarChaser : public Agent
 public:
 
 	StarChaser() = default;
-	//StarChaser(Texture *p_texture, Vector2 p_targetPosition);
 
 	void initialize();
 	void sense(Level *level) override;

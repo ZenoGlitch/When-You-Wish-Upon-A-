@@ -3,11 +3,6 @@
 #include "math.h"
 #include "level.h"
 
-//int TileData::costF() 
-//{
-//	return costG + costH;
-//}
-
 // GRID STUFF
 #pragma region gridFunctions
 
@@ -15,12 +10,10 @@ Grid::~Grid(){}
 
 Grid::Grid()
 {
-
 	for (int i = 0; i < 3; i++)
 	{
 		tileData.push_back(TileData());
 	}
-
 
 	int width = TileData::size;
 	int height = TileData::size;
@@ -56,8 +49,6 @@ TileType Grid::SetTileType(TileType p_tileType)
 		return tileType;
 		break;
 	}
-
-
 }
 
 TileType Grid::CycleTileTypes(TileType p_tileType)
@@ -97,7 +88,6 @@ void Grid::SetColor(TileType p_tileType)
 
 TileType Grid::GetRandomTileType()
 {
-
 	int x = GetRandomValue(0, 100);
 
 	if (x > 90)
@@ -112,7 +102,6 @@ TileType Grid::GetRandomTileType()
 	{
 		return Dirt;
 	}
-
 }
 #pragma endregion
 
@@ -135,33 +124,6 @@ GridManager* GridManager::GetInstance()
 
 void GridManager::Update()
 {
-	//for (int x = 0; x < grid.rows; x++) 
-	//{
-	//	  for (int y = 0; y < grid.columns; y++) 
-	//    {
-	//	  	grid.map[x][y].Update();
-	//	  }
-	//}
-
-	//for (int x = 0; x < grid.columns; x++)
-	//{
-	//	for (int y = 0; y < grid.rows; y++)
-	//	{
-	//		TileType tile = grid.map[x][y];
-	//		if (tile == Dirt)
-	//		{
-	//			grid.tileData.at(tile).color = BROWN;
-	//		}
-	//		if (grid.map[x][y] == Grass)
-	//		{
-	//			grid.tileData.at(tile).color = GREEN;
-	//		}
-	//		if (grid.map[x][y] == Rock)
-	//		{
-	//			grid.tileData.at(tile).color = GRAY;
-	//		}
-	//	}
-	//}
 }
 
 void GridManager::Draw()
@@ -207,7 +169,7 @@ TileType &GridManager::GetTile(int x, int y)
 }
 
 // get neighbour by grid index
-std::vector<Vector2> GridManager::GetNeighbours(/*Level *level,*/ int x, int y)
+std::vector<Vector2> GridManager::GetNeighbours(int x, int y)
 {
 	std::vector<Vector2> neighbours;
 
@@ -226,7 +188,6 @@ std::vector<Vector2> GridManager::GetNeighbours(/*Level *level,*/ int x, int y)
 			if (checkX >= 0 && checkX < grid.columns && checkY >= 0 && checkY < grid.rows)
 			{
 				neighbours.push_back(Vector2((float)checkX * TileData::size, (float)checkY * TileData::size));
-				/*level->neighbour_positions.push_back(Vector2((float)checkX, (float)checkY));*/
 			}
 		}
 	}
@@ -242,20 +203,7 @@ int GridManager::GetDistance(Vector2 from, Vector2 to)
 	int distanceX = (int)abs(from.x - to.x);
 	int distanceY = (int)abs(from.y - to.y);
 
-	//return sqrt((distanceX * distanceX) + (distanceY * distanceY));
-
 	return distanceX + distanceY;
-
-	//if (distanceX > distanceY)
-	//{
-	//	result = 14 * distanceY + 10 * (distanceX - distanceY);
-	//}
-	//else
-	//{
-	//	result = 14 * distanceX + 10 * (distanceY - distanceX);
-	//}
-
-	//return result;
 }
 
 #pragma endregion

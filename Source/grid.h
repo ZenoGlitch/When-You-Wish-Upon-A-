@@ -19,12 +19,6 @@ public:
 
 	Color color;
 
-	//int costF(); // costG + costH
-	//int costG; // Distance from starting node
-	//int costH; // Distance from end node
-
-	//Rectangle GetTileBox();
-
 private:
 
 };
@@ -65,7 +59,7 @@ public:
 	void Draw();
 
 	TileType &GetTile(int, int);
-	std::vector<Vector2> GetNeighbours(/*Level* level,*/ int x, int y); // Get the neighbouring tiles
+	std::vector<Vector2> GetNeighbours(int x, int y); // Get the neighbouring tiles by grid index, returns posiitions in pixel coordinates 
 	int GetDistance(Vector2 from, Vector2 to); // Get the calculated cost from node "from" to node "to"
 	Grid grid;
 

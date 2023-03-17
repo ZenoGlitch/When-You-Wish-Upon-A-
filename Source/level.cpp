@@ -65,35 +65,47 @@ void Level::input()
 
     if (IsKeyPressed(KEY_ONE)) // Pick up STARCHASER to move with mouse
     {
-        closed_tiles.clear();
-        open_tiles.clear();
-        starChaser.path.clear();
+        if (!starHeldByMouse && !spaceShipHeldByMouse && !tradePostHeldByMouse)
+        {
+            closed_tiles.clear();
+            open_tiles.clear();
+            starChaser.path.clear();
 
-        starChaserHeldByMouse = true;
+            starChaserHeldByMouse = true;
+        }
     }
     if (IsKeyPressed(KEY_TWO)) // Pick up STAR to move with mouse
     {
-        closed_tiles.clear();
-        open_tiles.clear();
-        starChaser.path.clear();
+        if (!starChaserHeldByMouse && !spaceShipHeldByMouse && !tradePostHeldByMouse)
+        {
+            closed_tiles.clear();
+            open_tiles.clear();
+            starChaser.path.clear();
 
-        starHeldByMouse = true;
+            starHeldByMouse = true;
+        }
     }
     if (IsKeyPressed(KEY_THREE)) // Pick up SPACESHIP to move with mouse
     {
-        closed_tiles.clear();
-        open_tiles.clear();
-        starChaser.path.clear();
+        if (!starChaserHeldByMouse && !starHeldByMouse && !tradePostHeldByMouse)
+        {
+            closed_tiles.clear();
+            open_tiles.clear();
+            starChaser.path.clear();
 
-        spaceShipHeldByMouse = true;
+            spaceShipHeldByMouse = true;
+        }
     }
     if (IsKeyPressed(KEY_FOUR)) // Pick up TRADEPOST to move with mouse
     {
-        closed_tiles.clear();
-        open_tiles.clear();
-        starChaser.path.clear();
+        if (!starChaserHeldByMouse && !starHeldByMouse && !spaceShipHeldByMouse)
+        {
+            closed_tiles.clear();
+            open_tiles.clear();
+            starChaser.path.clear();
 
-        tradePostHeldByMouse = true;
+            tradePostHeldByMouse = true;
+        }
     }
 
     // Debug controls below
@@ -301,13 +313,8 @@ void Level::Reset()
     open_tiles.clear();
     closed_tiles.clear();
 
-
-    //star_agents.clear();
-
     all_agents.clear();
     pending_agents.clear();
-
-    // Spawn agents
 
 }
 
@@ -374,6 +381,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
     while (open_tiles.size() > 0)
     {
         //// Uncomment code below to add the ability to step through the A* pathfinding for debugging
+        
         //if (maxSteps <= 0)
         //{
         //    break;
@@ -435,14 +443,13 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
                         break;
                     }
                 }
-                /*int newG = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).position, Vector2(n.x, n.y));*/
+                
                 int newG = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).origin(), Vector2(n.x + tileHalfSize, n.y + tileHalfSize));
                 if (neighbourNode != nullptr && newG < neighbourNode->costG)
                 {
                     neighbourNode->costG = newG;
                     neighbourNode->costF();
-                              
-                    /*neighbourNode->parentPosition = open_tiles.at(index).position;*/
+
                     neighbourNode->parentPosition = open_tiles.at(index).position;
                 }
                 else
@@ -453,7 +460,7 @@ std::vector<Vector2> Level::pathfind(Vector2 start, Vector2 end, int maxSteps)
 
             int newMoveCostToNeighbour = open_tiles.at(index).costG + gridManager.GetDistance(open_tiles.at(index).origin(), Vector2(n.x + tileHalfSize, n.y + tileHalfSize));
             
-            if (/*index == -1 &&*/ newMoveCostToNeighbour < open_tiles.at(index).costG)
+            if (newMoveCostToNeighbour < open_tiles.at(index).costG)
             {
                 continue;
             }
@@ -562,9 +569,7 @@ void Level::remove_dead_and_add_pending_agents()
     // This must happen _after_ we remove agents from the vector 'all_agents'.
     // @AddMoreHere
 
-    //star_agents.remove_if([](Star& a) { return a.isDead(); });
 
-    
     // Add all pending agents
     for (Agent* agent : pending_agents)
     {
@@ -634,28 +639,14 @@ Vector2 Level::PositionOnRandomTile()
 void Level::set_spawn_positions()
 {
     // Set STAR start position
-    //bool starStartTtileIsValid = true;
     Vector2 starSpawnPos = PositionOnRandomTile();
-    //if (gridManager.GetTile(starSpawnPos.x / TileData::size, starSpawnPos.y / TileData::size) == Rock)
-    //{
-    //    false;
-    //}
-    //if (!starStartTtileIsValid)
-    //{
-    //    starSpawnPos = PositionOnRandomTile();
-    //}
-    //else
-    //{
-    //    star.setPosition(starSpawnPos);
-    //}
     star.setPosition(starSpawnPos);
 
 
     // Set TRADING POST start position
     bool tradePostStartTileIsValid = true;
     Vector2 tradePostSpawnPos = PositionOnRandomTile();
-    if (tradePostSpawnPos.x == starSpawnPos.x && tradePostSpawnPos.y == starSpawnPos.y 
-        /*|| gridManager.GetTile(tradePostSpawnPos.x / TileData::size, tradePostSpawnPos.y / TileData::size) == Rock*/)
+    if (tradePostSpawnPos.x == starSpawnPos.x && tradePostSpawnPos.y == starSpawnPos.y)
     {
         tradePostStartTileIsValid = false;
     }
@@ -667,15 +658,12 @@ void Level::set_spawn_positions()
     {
         tradePost.setPosition(tradePostSpawnPos);
     }
-    //tradePost.setPosition(tradePostSpawnPos);
-
 
     // Set STARCHASER start position
     bool starChaserStartTileIsValid = true;
     Vector2 starChaserSpawnPos = PositionOnRandomTile();
     if (starChaserSpawnPos.x == tradePostSpawnPos.x && starChaserSpawnPos.y == tradePostSpawnPos.y
-        || starChaserSpawnPos.x == starSpawnPos.x && starChaserSpawnPos.y == starSpawnPos.y
-        /*|| gridManager.GetTile(starChaserSpawnPos.x / TileData::size, starChaserSpawnPos.y / TileData::size) == Rock*/)
+        || starChaserSpawnPos.x == starSpawnPos.x && starChaserSpawnPos.y == starSpawnPos.y)
     {
         starChaserStartTileIsValid = false;
     }
@@ -705,8 +693,6 @@ void Level::set_spawn_positions()
     {
         spaceShip.setPosition(spaceShipSpawnPos);
     }
-
-    //starChaser = StarChaser(&starChaser_texture, star.getPosition());
 }
 
 Level::pathfindingNode *Level::pathfindingNode::getNode(Vector2 p_position)

@@ -55,10 +55,6 @@ private: // Functions
 
 	void set_spawn_positions();
 
-	/*void SetNeighboursGandHCosts(std::vector<TileType> neighbours, Vector2 startTilePos, Vector2 end, int tileHalfSize);*/
-	/*void SetNeighbourPositions(std::vector<TileType> neighbours);*/
-
-
 public: // Containers and variables
 
 	int numberOfSteps = 1;
@@ -83,10 +79,6 @@ public: // Containers and variables
 	std::vector<Vector2> neighbour_positions;
 
 	//NOTE(Filippo): Using a list here is not the best idea, ideally you should store agents in some other data structure that keeps them close to each other while being pointer-stable.
-
-	//std::list<Star> star_agents;
-	std::list<StarChaser> starChaser_agents;
-	//std::list<TradingPost> tradingPost_agents;
 	
 	// @AddMoreHere
 

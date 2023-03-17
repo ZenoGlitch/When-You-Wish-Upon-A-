@@ -2,8 +2,6 @@
 
 #include "level.h"
 
-
-
 void SpaceShip::sense(Level* level)
 {
 }

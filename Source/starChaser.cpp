@@ -3,15 +3,6 @@
 #include "level.h"
 #include <cassert>
 
-//StarChaser::StarChaser(Texture *p_texture, Vector2 p_targetPosition)
-//	: texture(p_texture)
-//	, targetPosition(p_targetPosition)
-//	, sensing(idle)
-//	, decision(undecided)
-//	, energy(maxEnergy)
-//{
-//}
-
 void StarChaser::initialize()
 {
 	state = idle;
@@ -57,16 +48,14 @@ void StarChaser::sense(Level *level)
 	{
 		shouldRechargeEnergy = true;
 
+		shouldMoveToStar = false;
+		shouldMoveToStar = false;
+		shouldMoveToTrade = false;
 
-			shouldMoveToStar = false;
-			shouldMoveToStar = false;
-			shouldMoveToTrade = false;
-
-			stepsTaken = 0;
-			path.clear();
-			pathFound = false;
-			destinationReached = false;
-		
+		stepsTaken = 0;
+		path.clear();
+		pathFound = false;
+		destinationReached = false;
 	}
 
 	if (level->starChaserHeldByMouse || level->starHeldByMouse || level->tradePostHeldByMouse || level->spaceShipHeldByMouse)
@@ -110,8 +99,6 @@ void StarChaser::sense(Level *level)
 			shouldMoveToStar = true;
 		}
 	}
-
-
 }
 
 void StarChaser::decide()
@@ -141,7 +128,7 @@ void StarChaser::decide()
 void StarChaser::act(Level *level)
 {
 	const int moveEnergyDrain = 1;
-	if (state == movingToStar && !pathFound)
+	if (state == movingToStar && !pathFound && !level->starHeldByMouse)
 	{
 		path = level->pathfind(getPosition(), level->star.getPosition(), level->numberOfSteps);
 		if (path.empty())
@@ -151,7 +138,7 @@ void StarChaser::act(Level *level)
 		pathFound = true;
 	}
 
-	if (state == movingToTrade && !pathFound)
+	if (state == movingToTrade && !pathFound && !level->tradePostHeldByMouse)
 	{
 		path = level->pathfind(getPosition(), level->tradePost.getPosition(), level->numberOfSteps);
 		if (path.empty())
@@ -161,7 +148,7 @@ void StarChaser::act(Level *level)
 		pathFound = true;
 	}
 
-	if (state == movingToShip && !pathFound)
+	if (state == movingToShip && !pathFound && !level->spaceShipHeldByMouse)
 	{
 		path = level->pathfind(getPosition(), level->spaceShip.getPosition(), level->numberOfSteps);
 		if (path.empty())
@@ -197,13 +184,12 @@ void StarChaser::act(Level *level)
 			shouldMoveToTrade = false;
 			shouldMoveToShip = false;
 			shouldDeactivate = false;
-			//state = idle;
 		}
 	}
 
 	if (!path.empty() && state != beingHeld)
 	{
-		if (state == movingToStar)
+		if (state == movingToStar && !level->starHeldByMouse)
 		{
 			moveTimer -= GetFrameTime();
 
@@ -229,7 +215,7 @@ void StarChaser::act(Level *level)
 			}
 		}
 
-		if (state == movingToTrade)
+		if (state == movingToTrade && !level->tradePostHeldByMouse)
 		{
 			moveTimer -= GetFrameTime();
 
@@ -258,7 +244,7 @@ void StarChaser::act(Level *level)
 			}
 		}
 
-		if (state == movingToShip)
+		if (state == movingToShip && !level->spaceShipHeldByMouse)
 		{
 			moveTimer -= GetFrameTime();
 
@@ -283,8 +269,6 @@ void StarChaser::act(Level *level)
 				moveTimer = moveTimerReset;
 			}
 		}
-
-
 	}
 }
 
